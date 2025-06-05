@@ -1,7 +1,8 @@
 {
-  "name": "nextjs",
+  "name": "ninja",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -17,6 +18,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
+    "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rehype-highlight": "^7.0.2",
