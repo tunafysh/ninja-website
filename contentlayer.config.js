@@ -1,6 +1,6 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
-import { rehypeGithubAlerts } from "rehype-github-alerts"
+import remarkBlockQuoteAlerts from "remark-blockquote-alerts"
 import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
@@ -31,7 +31,7 @@ export default makeSource({
     contentDirPath: 'docs',
     documentTypes: [Doc],
     mdx: {
-        remarkPlugins: [remarkGfm],
+        remarkPlugins: [remarkGfm, remarkBlockQuoteAlerts],
         rehypePlugins: [
             rehypeSlug, // Must come before rehypeAutolinkHeadings
             [
@@ -43,7 +43,6 @@ export default makeSource({
                     }   
                 }
             ],
-            rehypeGithubAlerts,
             [
                 rehypePrettyCode, 
                 {

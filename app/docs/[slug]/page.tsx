@@ -26,7 +26,12 @@ const page: FC<pageProps> = async ({params}) => {
     const { slug } = await params
     
     const doc = await getDocFromGenerated(slug)
-  return <div><Mdx code={doc.body.code} /></div>
+  return (
+  <div className="flex-row justify-center items-center m-4 w-2/5 mt-8">
+    <h1 className="text-3xl font-bold pb-8">{doc.title.charAt(0).toUpperCase() + doc.title.slice(1)}</h1>
+    <Mdx code={doc.body.code} />
+    </div>
+    )
 }
 
 

@@ -53,6 +53,9 @@ importers:
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
+      remark-blockquote-alerts:
+        specifier: ^0.0.7
+        version: 0.0.7
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -1859,6 +1862,9 @@ packages:
 
   rehype-stringify@9.0.4:
     resolution: {integrity: sha512-Uk5xu1YKdqobe5XpSskwPvo1XeHUUucWEQSl8hTrXt5selvca1e8K1EZ37E6YoZ4BT8BCqCdVfQW7OfHfthtVQ==}
+
+  remark-blockquote-alerts@0.0.7:
+    resolution: {integrity: sha512-4VxvK+IeId5Az8zSU2pJHAoCbRdq3WEQCalurufAiONwtcYMmW5NMPn6COfmQ6pf06Hi/B8lQHN0z8211bhsDA==}
 
   remark-frontmatter@4.0.1:
     resolution: {integrity: sha512-38fJrB0KnmD3E33a5jZC/5+gGAC2WKNiPw1/fdXJvijBlhA7RCsvJklrYJakS0HedninvaCYW8lQGf9C918GfA==}
@@ -4378,6 +4384,10 @@ snapshots:
       '@types/hast': 2.3.10
       hast-util-to-html: 8.0.4
       unified: 10.1.2
+
+  remark-blockquote-alerts@0.0.7:
+    dependencies:
+      unist-util-visit: 5.0.0
 
   remark-frontmatter@4.0.1:
     dependencies:
