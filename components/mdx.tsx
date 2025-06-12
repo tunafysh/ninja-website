@@ -11,9 +11,17 @@ const components = {
   h2: (props: any) => <h2 className="text-2xl font-semibold mb-3" {...props} />,
   h3: (props: any) => <h3 className="text-xl font-medium mb-2" {...props} />,
   p: (props: any) => <p className="mb-4 leading-relaxed" {...props} />,
-  blockquote: (props: any) => (
-    <blockquote className="border-l-4 border-foreground-700 pl-4 italic my-4" {...props} />
-  ),
+  blockquote: (props: any) => {
+    console.log(props)
+    if(!props.className){
+      console.log(props)
+      return(
+        <div className="flex flex-row items-center">
+          <div className="w-2 bg-foreground self-stretch flex-shrink-0"></div>
+          <i className="w-[calc(100% - 8px)] mb-0 flex justify-center">{props.children[1].props.children}</i>
+        </div>
+      )}
+    },
   pre: (props: any) => <pre className="overflow-x-auto" {...props} />,
   code: (props: any) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props} />,
   // a: (props: any) => <Button variant={"link"}>{...props}</Button>,
