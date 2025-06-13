@@ -1,7 +1,7 @@
 // components/mdx-components.tsx
 'use client'
 
-import "@/app/alert-styles.css"
+import "@/app/mdx-styles.css"
 import { Link } from "lucide-react"
 import { useMDXComponent } from 'next-contentlayer/hooks'
 import { Button } from "./ui/button"
@@ -14,15 +14,24 @@ const components = {
   blockquote: (props: any) => {
     console.log(props)
     if(!props.className){
-      console.log(props)
       return(
-        <div className="flex flex-row items-center">
-          <div className="w-2 bg-foreground self-stretch flex-shrink-0"></div>
-          <i className="w-[calc(100% - 8px)] mb-0 flex justify-center">{props.children[1].props.children}</i>
+        <div className="flex flex-row items-center mb-2">
+          <div className="w-2 bg-foreground self-stretch flex-shrink-0 rounded-full"></div>
+          <i className="w-[calc(100% - 8px)] ml-2 mb-0 flex justify-center">{props.children[1].props.children}</i>
         </div>
       )}
     },
-  pre: (props: any) => <pre className="overflow-x-auto" {...props} />,
+  pre: (props: any) => {
+    if(props["data-theme"] === "one-dark-pro"){
+      return(
+        <pre className="overflow-x-auto p-2 bg-primary/10 border-1 border-foreground rounded-sm [&>*]:bg-transparent" {...props} />
+      )
+    }
+    else{
+
+      return(
+        <pre className="overflow-x-auto" {...props} />
+      )}},
   code: (props: any) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props} />,
   // a: (props: any) => <Button variant={"link"}>{...props}</Button>,
 }
