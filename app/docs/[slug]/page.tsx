@@ -11,11 +11,14 @@ export const metadata: Metadata = {
 };
 
 interface pageProps {
-    params: Promise<{ slug: string }>
+    params: Promise<{ slug?: string[] }>
 }
 
-async function getDocFromGenerated(slug: string) {
-    const doc = allDocs.find((doc) => doc.slug.substring(1) === slug)
+async function getDocFromGenerated(slug?: string) {
+    // Default to "home" if no slug provided
+    const targetSlug = slug || "home"
+  
+    const doc = allDocs.find((doc) => doc.slugAsParams === targetSlug)
 
     if(!doc) notFound()
 
@@ -24,15 +27,21 @@ async function getDocFromGenerated(slug: string) {
 
 const page: FC<pageProps> = async ({params}) => {
     const { slug } = await params
+    // Extract first slug or use undefined for default
+    const docSlug = slug?.[0]
     
-    const doc = await getDocFromGenerated(slug)
-  return (
-  <div className="flex-row justify-center items-center m-4 w-2/5 mt-8">
-    <h1 className="text-3xl font-bold pb-8">{doc.title.charAt(0).toUpperCase() + doc.title.slice(1)}</h1>
-    <Mdx code={doc.body.code} />
-    </div>
+    const doc = await getDocFromGenerated(docSlug)
+    
+    return (
+        <div className="flex-row justify-center items-center m-4 w-2/5 mt-8">
+            <h1 className="text-3xl font-bold pb-8">{doc.title.charAt(0).toUpperCase() + doc.title.slice(1)}</h1>
+            <Mdx code={doc.body.code} />
+        </div>
     )
 }
 
-
+/**
+ * Exports the page component as the default export for the dynamic documentation page.
+ * Renders a specific documentation page based on the provided slug parameter.
+ */
 export default page

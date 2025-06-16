@@ -4,18 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently --names Contentlayer,NextJS -c yellow,blue \"contentlayer dev\" \"next dev\"",
+    "dev": "concurrently --names Contentlayer,NextJS -c yellow,blue \"contentlayer dev\" \"next dev --turbopack\"",
     "build": "contentlayer build && next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "@tabler/icons-react": "^3.34.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "concurrently": "^9.1.2",
     "contentlayer": "^0.3.4",
     "lucide-react": "^0.513.0",
+    "motion": "^12.18.1",
     "next": "15.3.3",
     "next-contentlayer": "^0.3.4",
     "next-themes": "^0.4.6",
