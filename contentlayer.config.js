@@ -4,7 +4,6 @@ import remarkBlockQuoteAlerts from "remark-blockquote-alerts"
 import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
-import { transformerCopyButton } from "@rehype-pretty/transformers"
 
 const computedFields = {
     slug: {
@@ -49,9 +48,6 @@ export default makeSource({
                 {
                     theme: "one-dark-pro",
                     keepBackground: true, // Add this to prevent theme conflicts
-                    transformers: [
-                        transformerCopyButton()
-                    ],
                     onVisitLine(node) {
                         // Prevent lines from collapsing in `display: grid` mode, and allow empty
                         // lines to be copy/pasted

@@ -1,4 +1,4 @@
-import { Nav } from "@/components/navbar";
+"use client"
 import { EvervaultCard } from "@/components/ui/evervault-card";
 import { motion } from "motion/react";
 
@@ -6,9 +6,11 @@ export default function Home() {
   console.log(motion)
 
   return (
-    <div>
+    <div className="h-full">
       <div className="px-4 py-20 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-6xl dark:text-slate-300">
+        {/* <WavyBackground speed="fast" colors={["blue", "pink"]}> */}
+
+        <h1 className="relative z-10 mt-32 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-6xl dark:text-slate-300">
           {"Server management,"
             .split(" ")
             .map((word, index) => (
@@ -25,8 +27,8 @@ export default function Home() {
             .split(" ")
             .map((word, index) => (
               <span
-                key={index}
-                className="mr-2 inline-block"
+              key={index}
+              className="mr-2 inline-block"
               >
                 {word}
               </span>
@@ -39,7 +41,7 @@ export default function Home() {
         </p>
         <div
           className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
-        >
+          >
           <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200">
             Download Now
           </button>
@@ -47,6 +49,8 @@ export default function Home() {
             Read the Docs
           </button>
         </div>
+          {/* </WavyBackground> */}
+
         <div
           className="w-full flex items-center justify-center"
         >
@@ -55,7 +59,7 @@ export default function Home() {
           >
           <div className="w-full overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700">
             <img
-              src=""
+              src="null"
               alt="App preview"
               className="aspect-[16/9] h-auto w-full object-cover"
               height={1000}
@@ -65,13 +69,35 @@ export default function Home() {
         </div>
         </div>
       </div>
-      <div className="border rounded-md border-black/[0.2] dark:border-white/[0.2] flex flex-col items-start max-w-sm mx-auto p-4 relative h-[30rem]">
+    <div className="w-full flex justify-around items-center">
+      <div className="border rounded-md border-black/[0.2] dark:border-white/[0.2] flex flex-col items-start max-w-sm mx-auto p-4 relative h-[32rem]">
  
-      <EvervaultCard text="Secure by default." />
- 
+      <EvervaultCard text="lock" />
+            
+      <h1 className="text-foreground mt-4 text-2xl font-bold">Secure by default.</h1>
       <h2 className="dark:text-white text-black mt-4 text-md">
         By using Tauri, a Rust based application framework, we can ensure that your projects and tools are always secure.
       </h2>
+    </div>
+
+    <div className="border rounded-md mt-4 border-black/[0.2] dark:border-white/[0.2] flex flex-col items-start max-w-sm mx-auto p-4 relative h-[32rem]">
+ 
+      
+            
+      <h1 className="text-foreground mt-4 text-2xl font-bold">Secure by default.</h1>
+      <h2 className="dark:text-white text-black mt-4 text-md">
+        By using Tauri, a Rust based application framework, we can ensure that your projects and tools are always secure.
+      </h2>
+    </div>
+    <div className="border rounded-md mt-4 border-black/[0.2] dark:border-white/[0.2] flex flex-col items-start max-w-sm mx-auto p-4 relative h-[32rem]">
+ 
+      <EvervaultCard text="Secure by default." />
+            
+      <h1 className="text-foreground mt-4 text-2xl font-bold">Secure by default.</h1>
+      <h2 className="dark:text-white text-black mt-4 text-md">
+        By using Tauri, a Rust based application framework, we can ensure that your projects and tools are always secure.
+      </h2>
+    </div>
     </div>
     </div>
   );

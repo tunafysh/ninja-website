@@ -29,7 +29,9 @@
     "rehype-slug": "^6.0.0",
     "remark-blockquote-alerts": "^0.0.7",
     "remark-gfm": "^4.0.1",
-    "tailwind-merge": "^3.3.0"
+    "simplex-noise": "^4.0.3",
+    "tailwind-merge": "^3.3.0",
+    "use-platform": "^0.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
