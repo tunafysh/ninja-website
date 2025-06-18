@@ -1,9 +1,9 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files"
 import rehypeAutolinkHeadings from "rehype-autolink-headings"
-import remarkBlockQuoteAlerts from "remark-blockquote-alerts"
 import rehypePrettyCode from "rehype-pretty-code"
 import rehypeSlug from "rehype-slug"
 import remarkGfm from "remark-gfm"
+import remarkBlockquoteAlerts from "remark-blockquote-alerts"
 
 const computedFields = {
     slug: {
@@ -28,10 +28,10 @@ export const Doc = defineDocumentType(() => ({
 }))
 
 export default makeSource({
-    contentDirPath: 'content',
+    contentDirPath: 'docs',
     documentTypes: [Doc],
     mdx: {
-        remarkPlugins: [remarkGfm, remarkBlockQuoteAlerts],
+        remarkPlugins: [remarkGfm, remarkBlockquoteAlerts],
         rehypePlugins: [
             rehypeSlug, // Must come before rehypeAutolinkHeadings
             [
@@ -46,7 +46,7 @@ export default makeSource({
             [
                 rehypePrettyCode, 
                 {
-                    theme: "one-dark-pro",
+                    theme: 'one-dark-pro',
                     keepBackground: true, // Add this to prevent theme conflicts
                     onVisitLine(node) {
                         // Prevent lines from collapsing in `display: grid` mode, and allow empty

@@ -12,10 +12,9 @@ const components = {
   h3: (props: any) => <h3 className="text-xl font-medium mb-2" {...props} />,
   p: (props: any) => <p className="mb-4 leading-relaxed" {...props} />,
   blockquote: (props: any) => {
-    console.log(props)
     if(!props.className){
       return(
-        <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-row items-center mb-4">
           <div className="w-2 bg-foreground self-stretch flex-shrink-0 rounded-full"></div>
           <i className="w-[calc(100% - 8px)] ml-2 mb-0 flex justify-center">{props.children[1].props.children}</i>
         </div>
@@ -24,7 +23,7 @@ const components = {
   pre: (props: any) => {
     if(props["data-theme"] === "one-dark-pro"){
       return(
-        <pre className="overflow-x-auto p-2 bg-primary/10 border-1 border-foreground rounded-sm [&>*]:bg-transparent" {...props} />
+        <pre className="overflow-x-auto p-2 bg-primary/10 border-[0.5px] border-foreground rounded-sm [&>*]:bg-transparent" {...props} />
       )
     }
     else{

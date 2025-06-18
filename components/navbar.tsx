@@ -16,12 +16,16 @@ import Themetoggle from "./themetoggle";
 export function Nav() {
   const navItems = [
     {
-      name: "Docs",
-      link: "/docs",
+      name: "Documentation",
+      link: "/docs/test",
     },
     {
       name: "Source",
       link: "http://github.com/tunafysh/ninja"
+    },
+    {
+      name: "Issues",
+      link: "https://github.com/tunafysh/ninja/issues",
     }
   ];
 
