@@ -59,8 +59,6 @@ export default function Home() {
           {/* </WavyBackground> */}
 
           </div>
-    <div className="w-full flex justify-around items-center">
-    </div>
         <div
           className="w-full flex items-center justify-center"
         >
@@ -89,48 +87,43 @@ export default function Home() {
           </div>
         </div>
       </div>
-<ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
-      <GridItem
-        area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-        icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title="Do things the right way"
-        description="Running out of copy so I'll write anything."
+      <div className="w-full flex justify-around items-center mb-4">
+<ul className="grid grid-cols-1 gap-4 md:grid-cols-5 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2 max-w-4xl mx-auto">
+  <GridItem
+    area="md:col-span-2 xl:col-span-3"
+    icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
+    title="By developers, for developers."
+    description="Ninja was made with a developer's experience as a priority, so if you have problems with the program, check the docs or leave a github issue."
+  />
+  <GridItem
+    area="md:col-span-2 xl:col-span-3 xl:row-start-2"
+    icon={<Settings className="h-4 w-4 text-black dark:text-neutral-400" />}
+    title="Your time is precious, let Ninja handle the servers."
+    description="Leveraging a custom V8 engine, you can automate your servers, Version control and anything else using Ninjascript."
+  />
+  <li className="min-h-[14rem] list-none md:col-span-8 md:row-span-2 xl:col-span-3 xl:row-span-2 xl:col-start-4">
+    <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
+      <GlowingEffect
+        spread={40}
+        glow={true}
+        disabled={false}
+        proximity={64}
+        inactiveZone={0.01}
       />
- 
-      <GridItem
-        area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-        icon={<Settings className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title="The best AI code editor ever."
-        description="Yes, it's true. I'm not even kidding. Ask my mom if you don't believe me."
-      />
-
-        <li className={`min-h-[14rem] list-none md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]`}>
-      <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
-        <GlowingEffect
-          spread={40}
-          glow={true}
-          disabled={false}
-          proximity={64}
-          inactiveZone={0.01}
-        />
-        <div className="border-0.75 relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
-        
- 
-      <EvervaultCard text="lock" />
-            
-      <h1 className="text-foreground mt-4 text-2xl font-bold">Secure by design.</h1>
-      <h2 className="dark:text-white text-black mt-4 text-md">
-        By using Tauri, a Rust based application framework, we can ensure that your projects and tools are always secure.
-      </h2>
+      <div className="border-0.75 relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
+        <EvervaultCard text="lock" />
+        <h1 className="text-foreground mt-2 text-2xl font-bold">Secure by design.</h1>
+        <h2 className="dark:text-white text-black mt-2 text-md">
+          By using Tauri, a Rust based application framework, we can ensure that your projects and tools are always secure.
+        </h2>
       </div>
-
     </div>
-    </li>
-            </ul>
+  </li>
+</ul>
+    </div>
       <footer className="h-16 w-full flex items-center justify-center bg-secondary mt-4">
-      Copyright Hanan Smani 2025, All rights reserved
+      © Copyright Hanan Smani 2025, All rights reserved
     </footer>
-
     </div>
   );
 }
