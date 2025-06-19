@@ -1,9 +1,11 @@
 import type { NextConfig } from "next"; 
+import { createMDX } from "fumadocs-mdx/next"
+
+const withMDX = createMDX()
 
 const nextConfig: NextConfig = {
   /* config options here */  
-
-  transpilePackages: ['next-contentlayer']
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx']
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

@@ -1,6 +1,5 @@
 "use client"
 import { EvervaultCard } from "@/components/ui/evervault-card";
-import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import appDark from "@/public/app-dark.png"
@@ -8,10 +7,13 @@ import appLight from "@/public/app-light.png"
 import { Box, Settings } from "lucide-react";
 import { GridItem } from "@/components/ui/griditem"
 import { GlowingEffect } from "@/components/ui/glowing-card";
+import { Nav } from "@/components/navbar";
 
 export default function Home() {
   const { theme } = useTheme()
   return (
+    <div>
+      <Nav/>
     <div className="h-full">
       <div className="px-4 py-20 md:py-20 bg-muted">
 
@@ -124,6 +126,7 @@ export default function Home() {
       <footer className="h-16 w-full flex items-center justify-center bg-secondary mt-4">
       © Copyright Hanan Smani 2025, All rights reserved
     </footer>
+    </div>
     </div>
   );
 }
