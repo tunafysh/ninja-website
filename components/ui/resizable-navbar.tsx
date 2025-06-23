@@ -240,19 +240,20 @@ export const NavbarLogo = () => {
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      {theme == "dark"?
+      {theme == "light"?
+      <Image  
+      src={darkLogo}
+      alt="Logo"
+        width={70}
+        height={40}
+        />:
       <Image  
       src={logo}
       alt="Logo"
         width={70}
         height={40}
-        />:
-        <Image  
-      src={darkLogo}
-      alt="Logo"
-        width={70}
-        height={40}
         />
+        
       }
     </a>
   );

@@ -10,7 +10,7 @@ interface GridItemProps {
 export const GridItem = ({ area, icon, title, description }: GridItemProps) => {
   return (
     <li className={`min-h-[14rem] list-none ${area}`}>
-      <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
+      <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3 bg-background">
         <GlowingEffect
           spread={40}
           glow={true}

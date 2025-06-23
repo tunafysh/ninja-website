@@ -6,8 +6,6 @@ import {
   DocsTitle,
 } from 'fumadocs-ui/page';
 
-import ClerkTOCItems, * as TOC from "fumadocs-ui/components/layout/toc-clerk"
-
 import { notFound } from 'next/navigation';
 import { getMDXComponents } from '@/mdx-components';
 
