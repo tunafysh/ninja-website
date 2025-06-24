@@ -7,19 +7,44 @@ import appDark from "@/public/app-dark.png"
 import appLight from "@/public/app-light.png"
 import windows from "@/public/windows.svg"
 import mac from "@/public/apple.svg"
-import apache from "@/public/apache.svg"
-import mySQL from "@/public/mysql.svg"
-import nodejs from "@/public/nodejs.svg"
-import { Box, Settings, Sparkles, Zap, Shield, Code2 } from "lucide-react";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
+import { Box, Settings, Sparkles, Code2 } from "lucide-react";
 import { GridItem } from "@/components/ui/griditem"
 import { GlowingEffect } from "@/components/ui/glowing-card";
 import { Nav } from "@/components/navbar";
 import { motion } from "motion/react";
+import { useEffect, useState, useCallback } from "react";
 
 export default function Home() {
   const { theme } = useTheme()
   const platform = usePlatform()
-  
+  const [mounted, setMounted] = useState(false)
+  const [ init, setInit ] = useState(false);
+
+    // this should be run only once per application lifetime
+    useEffect(() => {
+        initParticlesEngine(async (engine) => {
+            // you can initiate the tsParticles instance (engine) here, adding custom shapes or presets
+            // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+            // starting from v2 you can add only the features you need reducing the bundle size
+            //await loadAll(engine);
+            //await loadFull(engine);
+            await loadSlim(engine);
+            //await loadBasic(engine);
+        }).then(() => {
+            setInit(true);
+        });
+    }, []);
+
+    const particlesLoaded = useCallback(async (container: any) => {
+        console.log(container);
+    }, []);
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const getDownloadText = () => {
     switch (platform) {
       case 'windows':
@@ -32,57 +57,85 @@ export default function Home() {
         return 'Download Now'
     }
   }
+
   return (
     <div className="relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="fixed inset-0 pointer-events-none">
-        {/* Floating orbs */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-gradient-to-r from-green-400/10 to-emerald-400/10 rounded-full blur-xl animate-pulse delay-2000"></div>
-        
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_24px,rgba(255,255,255,0.03)_25px,rgba(255,255,255,0.03)_26px,transparent_27px,transparent_74px,rgba(255,255,255,0.03)_75px,rgba(255,255,255,0.03)_76px,transparent_77px),linear-gradient(rgba(255,255,255,0.03)_24px,transparent_25px,transparent_26px,rgba(255,255,255,0.03)_27px,rgba(255,255,255,0.03)_74px,transparent_75px,transparent_76px,rgba(255,255,255,0.03)_77px)] bg-[size:100px_100px] dark:bg-[linear-gradient(90deg,transparent_24px,rgba(255,255,255,0.03)_25px,rgba(255,255,255,0.03)_26px,transparent_27px,transparent_74px,rgba(255,255,255,0.03)_75px,rgba(255,255,255,0.03)_76px,transparent_77px),linear-gradient(rgba(255,255,255,0.03)_24px,transparent_25px,transparent_26px,rgba(255,255,255,0.03)_27px,rgba(255,255,255,0.03)_74px,transparent_75px,transparent_76px,rgba(255,255,255,0.03)_77px)]"></div>
-      </div>
+   
 
       <Nav/>
       
       <div className="h-full relative z-10">
         <div className="px-4 py-20 md:py-20 bg-background relative">
-          {/* Decorative elements around the hero */}
-          <div className="absolute top-32 left-8 opacity-30">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            >
-              <Code2 className="w-8 h-8 text-purple-500" />
-            </motion.div>
-          </div>
-          
-          <div className="absolute top-48 right-12 opacity-30">
-            <motion.div
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Zap className="w-6 h-6 text-blue-500" />
-            </motion.div>
-          </div>
-
-          <div className="absolute top-60 left-1/4 opacity-20">
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Sparkles className="w-5 h-5 text-pink-500" />
-            </motion.div>
-          </div>
+          {/* Particles Background */}
+          {init && (
+            <Particles
+              id="tsparticles"
+              particlesLoaded={particlesLoaded}
+              options={{
+                background: {
+                  color: {
+                    value: "transparent",
+                  },
+                },
+                fpsLimit: 120,
+                interactivity: {
+                  events: {
+                    onHover: {
+                      enable: true,
+                      mode: "grab",
+                    },
+                  },
+                },
+                particles: {
+                  color: {
+                    value: ["#8B5CF6", "#EC4899", "#06B6D4", "#10B981"],
+                  },
+                  links: {
+                    color: "#8B5CF6",
+                    distance: 150,
+                    enable: true,
+                    opacity: 0.3,
+                    width: 1,
+                  },
+                  move: {
+                    direction: "none",
+                    enable: true,
+                    outModes: {
+                      default: "bounce",
+                    },
+                    random: false,
+                    speed: 1,
+                    straight: false,
+                  },
+                  number: {
+                    density: {
+                      enable: true,
+                    },
+                    value: 80,
+                  },
+                  opacity: {
+                    value: 0.5,
+                  },
+                  shape: {
+                    type: "circle",
+                  },
+                  size: {
+                    value: { min: 1, max: 3 },
+                  },
+                },
+                detectRetina: true,
+              }}
+              className="absolute inset-0 pointer-events-auto"
+            />
+          )}
 
           <motion.h1 
             className="relative z-10 mt-32 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-6xl dark:text-slate-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-          >
+            >
             {"Server management,"
               .split(" ")
               .map((word, index) => (
@@ -109,7 +162,7 @@ export default function Home() {
               .map((word, index) => (
                 <motion.span
                   key={index}
-                  className="mr-2 inline-block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+                  className="mr-2 inline-block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
@@ -189,13 +242,12 @@ export default function Home() {
             <div className="w-full overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 relative">
               {/* Subtle glow effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl"></div>
-              {
-                theme == "dark" ? 
+              {mounted? theme === "dark" ? 
                 <Image
                   src={appDark}
                   alt="App preview"
                   className="h-auto w-full object-cover relative z-10"
-                  height={800}
+                  height={1000}
                   width={1200}
                 />:
                 <Image
@@ -205,30 +257,13 @@ export default function Home() {
                   height={1000}
                   width={1200}
                 />
-              }
+              :  null}
             </div>
           </motion.div>
         </div>
         
         <div className="w-full flex justify-around items-center pb-8 pt-4 bg-accent relative">
-          {/* Floating decorative elements */}
-          <div className="absolute top-8 left-16 opacity-10">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="w-12 h-12 border-2 border-dashed border-purple-500 rounded-full"></div>
-            </motion.div>
-          </div>
-          
-          <div className="absolute bottom-8 right-16 opacity-10">
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-sm"></div>
-            </motion.div>
-          </div>
+
 
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-5 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2 max-w-4xl mx-auto relative z-10">
             <GridItem
