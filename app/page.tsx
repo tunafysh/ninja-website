@@ -180,13 +180,16 @@ export default function Home() {
           >
             Ninja is a powerful and user-friendly server management tool that takes care of Apache, Nginx, and PHP management, allowing you to focus on what matters most: your projects.
           </motion.p>
-          
           <motion.div
-            className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
+            className="relative z-10 mt-8 flex flex-col items-center justify-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
-          >
+            >
+              <div className="w-fit">
+
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+
             <motion.button 
               className="w-64 transform rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/25 relative overflow-hidden group"
               whileHover={{ scale: 1.02 }}
@@ -209,20 +212,21 @@ export default function Home() {
                 Read the Docs
               </span>
             </motion.button>
-          </motion.div>
+            <div>
+
+            </div>
+            </div>
+            <div className="w-full h-fit flex flex-row items-center justify-center mb-4">
+              <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
+              <p className="px-2">or</p>
+              <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
+              </div>
+            //TODO Add the link box
         </div>
+          </motion.div>
+              </div>
         
         <div className="w-full flex items-center justify-center bg-muted relative">
-          
-          <div className="absolute bottom-4 right-8 opacity-20">
-            <motion.div
-              animate={{ x: [-5, 5, -5] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <Settings className="w-6 h-6 text-blue-500" />
-            </motion.div>
-          </div>
-
           <motion.div
             className="relative z-10 rounded-3xl border border-neutral-200 bg-neutral-100/80 backdrop-blur-sm p-4 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900/80 w-fit -top-8"
             initial={{ opacity: 0, y: 40 }}
@@ -254,7 +258,6 @@ export default function Home() {
         </div>
         
         <div className="w-full flex justify-around items-center pb-8 pt-4 bg-accent relative">
-
 
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-5 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2 max-w-4xl mx-auto relative z-10">
             <GridItem
