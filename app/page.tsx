@@ -213,15 +213,6 @@ export default function Home() {
         </div>
         
         <div className="w-full flex items-center justify-center bg-muted relative">
-          {/* Decorative elements around the app preview */}
-          <div className="absolute top-4 left-8 opacity-20">
-            <motion.div
-              animate={{ rotate: [0, 180, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            >
-              <Shield className="w-6 h-6 text-green-500" />
-            </motion.div>
-          </div>
           
           <div className="absolute bottom-4 right-8 opacity-20">
             <motion.div
