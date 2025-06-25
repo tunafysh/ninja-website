@@ -173,20 +173,15 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            {"made easy."
-              .split(" ")
-              .map((word, index) => (
+          >      
                 <motion.span
-                  key={index}
                   className="mr-2 inline-block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                  transition={{ duration: 0.5, delay: 0.3 * 0.1 }}
                 >
-                  {word}
+                  made easy.
                 </motion.span>
-              ))}
           </motion.h1>
           
           <motion.p
