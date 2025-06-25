@@ -58,7 +58,7 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
-    if (platform === "windows") setTerminalCommand("irm https://ninja-rs.vercel.app/install | iex"); else setTerminalCommand("curl -s https://ninja-rs.vercel.app/install | sh");
+    if (platform === "windows") setTerminalCommand("powershell -c \"irm https://ninja-rs.vercel.app/install | iex\""); else setTerminalCommand("curl -s https://ninja-rs.vercel.app/install | sh");
   }, [mounted, platform])
 
   const getDownloadText = () => {
