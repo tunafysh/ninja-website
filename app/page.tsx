@@ -15,6 +15,7 @@ import { GlowingEffect } from "@/components/ui/glowing-card";
 import { Nav } from "@/components/navbar";
 import { motion } from "motion/react";
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const { theme } = useTheme()
@@ -206,8 +207,9 @@ export default function Home() {
 
             <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
 
+            
             <motion.button 
-              className="w-64 transform rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/25 relative overflow-hidden group"
+              className="cursor-pointer w-64 transform rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/25 relative overflow-hidden group"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -218,16 +220,18 @@ export default function Home() {
               </span>
             </motion.button>
             
+            <Link href="/docs">
             <motion.button 
-              className="w-60 transform rounded-lg border border-gray-300 bg-white/80 backdrop-blur-sm px-6 py-3 font-medium text-black transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg dark:border-gray-700 dark:bg-black/80 dark:text-white dark:hover:bg-black/90"
+              className="cursor-pointer w-60 transform rounded-lg border border-gray-300 bg-white/80 backdrop-blur-sm px-6 py-3 font-medium text-black transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg dark:border-gray-700 dark:bg-black/80 dark:text-white dark:hover:bg-black/90"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-            >
+              >
               <span className="flex items-center justify-center gap-2">
                 <Code2 className="w-4 h-4" />
                 Read the Docs
               </span>
             </motion.button>
+            </Link>
             <div>
 
             </div>
@@ -244,12 +248,12 @@ export default function Home() {
       <div className="w-full h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-1">
         <div className="w-full h-full rounded-md bg-white dark:bg-zinc-800 flex items-center justify-between px-4 group">
           <code className="text-sm font-mono text-zinc-800 dark:text-zinc-200 flex-grow">
-            {platform === "windows"? "irm https://ninja.sh/install | iex" : "curl -s https://ninja.sh/install | bash"}
+            {terminalCommand}
           </code>
           
           <button
             onClick={handleCopy}
-            className="ml-4 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-700 transition-colors duration-200 flex items-center justify-center"
+            className="cursor-pointer ml-4 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-700 transition-colors duration-200 flex items-center justify-center"
             title={copied ? "Copied!" : "Copy to clipboard"}
           >
             {copied ? (

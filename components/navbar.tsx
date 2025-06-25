@@ -17,7 +17,7 @@ export function Nav() {
   const navItems = [
     {
       name: "Documentation",
-      link: "/docs/test",
+      link: "/docs",
     },
     {
       name: "Source",
