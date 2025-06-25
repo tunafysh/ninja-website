@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes"
 import "./globals.css";
-import { Nav } from "@/components/navbar";
 import { RootProvider } from "fumadocs-ui/provider"
 
 const geistSans = Geist({

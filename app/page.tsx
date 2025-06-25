@@ -9,7 +9,7 @@ import windows from "@/public/windows.svg"
 import mac from "@/public/apple.svg"
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import { Box, Settings, Sparkles, Code2 } from "lucide-react";
+import { Box, Settings, Sparkles, Code2, Check, Copy } from "lucide-react";
 import { GridItem } from "@/components/ui/griditem"
 import { GlowingEffect } from "@/components/ui/glowing-card";
 import { Nav } from "@/components/navbar";
@@ -21,6 +21,21 @@ export default function Home() {
   const platform = usePlatform()
   const [mounted, setMounted] = useState(false)
   const [ init, setInit ] = useState(false);
+  const [copied, setCopied ] = useState(false);
+  const [terminalCommand, setTerminalCommand] = useState(
+    "Loading..."
+  );
+
+  const handleCopy = () => {
+    try {
+      navigator.clipboard.writeText(terminalCommand).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
 
     // this should be run only once per application lifetime
     useEffect(() => {
@@ -43,7 +58,8 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    if (platform === "windows") setTerminalCommand("irm https://ninja-rs.vercel.app/install | iex"); else setTerminalCommand("curl -s https://ninja-rs.vercel.app/install | sh");
+  }, [mounted, platform])
 
   const getDownloadText = () => {
     switch (platform) {
@@ -217,11 +233,33 @@ export default function Home() {
             </div>
             </div>
             <div className="w-full h-fit flex flex-row items-center justify-center mb-4">
-              <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
-              <p className="px-2">or</p>
-              <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
-              </div>
-            //TODO Add the link box
+        <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
+        <p className="mx-4 text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
+          or via the terminal
+        </p>
+        <div className="w-full grow border-t border-neutral-200 dark:border-neutral-800"/>
+      </div>
+      
+      {/* Terminal command box */}
+      <div className="w-full h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-1">
+        <div className="w-full h-full rounded-md bg-white dark:bg-zinc-800 flex items-center justify-between px-4 group">
+          <code className="text-sm font-mono text-zinc-800 dark:text-zinc-200 flex-grow">
+            {platform === "windows"? "irm https://ninja.sh/install | iex" : "curl -s https://ninja.sh/install | bash"}
+          </code>
+          
+          <button
+            onClick={handleCopy}
+            className="ml-4 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-zinc-700 transition-colors duration-200 flex items-center justify-center"
+            title={copied ? "Copied!" : "Copy to clipboard"}
+          >
+            {copied ? (
+              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+            ) : (
+              <Copy className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+            )}
+          </button>
+        </div>
+      </div>
         </div>
           </motion.div>
               </div>
