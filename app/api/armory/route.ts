@@ -100,10 +100,7 @@ async function handlePost(req: NextRequest) {
 
         const newShuriken = await createShuriken(body);
         
-        return NextResponse.json(
-            newShuriken, 
-            { status: 201 }
-        );
+        return NextResponse.json({}, { status: 200 });
 
     } catch (error) {
         console.error("POST Error:", error);
@@ -147,7 +144,7 @@ async function handlePut(req: NextRequest) {
 
         const updatedShuriken = await updateShuriken(id, body);
         
-        return NextResponse.json(updatedShuriken);
+        return NextResponse.json({},{ status: 200 });
 
     } catch (error) {
         console.error("PUT Error:", error);

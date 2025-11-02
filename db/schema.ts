@@ -2,7 +2,7 @@ import { text, uuid, timestamp, pgTable } from "drizzle-orm/pg-core"
 
 export const armoryTable = pgTable("Armory", {
     id: uuid('id').primaryKey(),
-    created_at: timestamp('created_at'),
+    last_modified: timestamp('last_modified'),
     name: text('name').notNull(),
     label: text('label').notNull(),
     synopsis: text('synopsis').notNull(),

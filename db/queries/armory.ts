@@ -9,7 +9,7 @@ export async function createShuriken(data: InsertShuriken) {
 export async function getShurikenByID(id: SelectShuriken['id']): Promise<
     Array<{
         id: string;
-        created_at: Date | null;
+        last_modified: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -29,7 +29,7 @@ export async function getShurikenByID(id: SelectShuriken['id']): Promise<
 export async function getShurikenByName(name: SelectShuriken['name']): Promise<
     Array<{
         id: string;
-        created_at: Date | null;
+        last_modified: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -49,7 +49,7 @@ export async function getShurikenByName(name: SelectShuriken['name']): Promise<
 export async function getShurikenByLabel(label: SelectShuriken['label']): Promise<
     Array<{
         id: string;
-        created_at: Date | null;
+        last_modified: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -69,7 +69,7 @@ export async function getShurikenByLabel(label: SelectShuriken['label']): Promis
 export async function getShurikenByPlatform(platforms: SelectShuriken['platforms']): Promise<
     Array<{
         id: string;
-        created_at: Date | null;
+        last_modified: Date | null;
         name: string;
         label: string;
         synopsis: string;
