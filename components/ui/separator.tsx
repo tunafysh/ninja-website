@@ -5,6 +5,14 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Render a stylized horizontal or vertical separator using Radix UI's Separator.Root.
+ *
+ * @param className - Additional CSS classes to apply to the separator root.
+ * @param orientation - Separator orientation, either `"horizontal"` or `"vertical"`. Defaults to `"horizontal"`.
+ * @param decorative - Whether the separator is decorative (affects accessibility). Defaults to `true`.
+ * @returns A JSX element representing the separator.
+ */
 function Separator({
   className,
   orientation = "horizontal",

@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
 
+/**
+ * Serves an install script tailored to the client's user-agent or redirects to the site root.
+ *
+ * @returns `NextResponse` containing the requested install script with an appropriate `Content-Type` header (`text/plain` for `.ps1`, `text/x-shellscript` for others), or a redirect response to the origin root if the user-agent does not match a supported client.
+ */
 export async function GET(req: NextRequest){
   const userAgent = req.headers.get("user-agent") || "";
   const basePath = path.join(process.cwd(), "public", "scripts");

@@ -2,6 +2,13 @@ import logo from "@/public/logo.svg"
 import Themetoggle from "./themetoggle"
 import { useTheme } from "next-themes"
 
+/**
+ * Render a horizontal navigation bar with a theme-aware logo, navigation links, and a placeholder element.
+ *
+ * The SVG logo's fill is black when the theme is "light" and white for any other theme.
+ *
+ * @returns The navigation bar JSX element containing the logo, a three-item link menu (Docs, Source, Armory), and an empty placeholder div.
+ */
 export default function Navbar(){
   const { theme } = useTheme()
   return(
