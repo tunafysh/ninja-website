@@ -1,15 +1,36 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { readFile } from "fs/promises";
+import path from "path";
 
-export function GET(req: NextRequest){
-    const userAgent = req.headers.get("user-agent");
+/**
+ * Serves an install script tailored to the client's user-agent or redirects to the site root.
+ *
+ * @returns `NextResponse` containing the requested install script with an appropriate `Content-Type` header (`text/plain` for `.ps1`, `text/x-shellscript` for others), or a redirect response to the origin root if the user-agent does not match a supported client.
+ */
+export async function GET(req: NextRequest){
+  const userAgent = req.headers.get("user-agent") || "";
+  const basePath = path.join(process.cwd(), "public", "scripts");
 
-    if (userAgent?.includes("PowerShell")){
-      return Response.redirect(req.nextUrl.origin+"/scripts/install.ps1")
+  let filename = null;
+
+  if (userAgent.includes("PowerShell")) {
+    filename = "install.ps1";
+  } else if (userAgent.includes("curl")) {
+    filename = "install.sh";
+  }
+
+  if (!filename) {
+    return NextResponse.redirect(req.nextUrl.origin + "/");
+  }
+
+  const filePath = path.join(basePath, filename);
+  const content = await readFile(filePath, "utf8");
+
+  return new NextResponse(content, {
+    headers: {
+      "content-type": filename.endsWith(".ps1")
+        ? "text/plain"
+        : "text/x-shellscript"
     }
-    else if (userAgent?.includes("curl")){
-      return Response.redirect(req.nextUrl.origin+"/scripts/install.sh")
-    }
-    else {
-        return Response.redirect(req.nextUrl.origin+"/")
-    }
+  });
 }

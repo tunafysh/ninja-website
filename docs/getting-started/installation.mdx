@@ -1,0 +1,32 @@
+---
+title: Installation
+---
+
+Installation options
+
+1) Prebuilt binary
+
+- Download the appropriate release for your platform from the project releases page and unpack it.
+-- Move the `shurikenctl` binary to a directory on your `PATH` (for example `/usr/local/bin`).
+
+2) Package manager (where available)
+
+- On platforms that provide packages, prefer the native package for easier upgrades and service integration.
+
+3) Build from source
+
+```bash
+git clone https://github.com/tunafysh/ninja.git
+cd ninja
+cargo build --release
+sudo cp target/release/shurikenctl /usr/local/bin/
+```
+
+After installation, check basic health:
+
+```bash
+shurikenctl --version
+shurikenctl help
+```
+
+If you rely on system-level service management for long-running operation, create a systemd unit or equivalent to manage the `shurikenctl` process.

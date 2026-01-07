@@ -1,0 +1,23 @@
+---
+title: MCP integration
+---
+
+Ninja provides tools to integrate with an MCP (Model/Message Control Plane) environment via a tool router. The MCP integration exposes a set of callable tools that wrap manager operations.
+
+- Common tools
+
+- `start_shuriken` — start a shuriken by name
+- `stop_shuriken` — stop a shuriken by name
+- `restart_shuriken` — stop then start
+- `shuriken_status` — list shurikens and optionally return states
+- `dsl_execute` / `ninjascript_execute` — execute DSL or Ninja-script (Lua) scripts
+
+Implementation notes
+
+- Tools are implemented with `rmcp` tool handlers and call into `ShurikenManager` methods.
+- Tools accept JSON-serializable parameter structs (for example `{ name: "example-service" }`) and return `CallToolResult` values.
+
+Use cases
+
+- Remote control of services from orchestration systems
+- Exposing shuriken lifecycle actions to higher-level automation

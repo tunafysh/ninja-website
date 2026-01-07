@@ -1,0 +1,23 @@
+---
+title: Syntax of the DSL
+---
+
+The Ninja DSL is a lightweight, shellscript-like command language used to perform quick operations and automation inside the runtime.
+
+Common DSL constructs
+
+- `start <shuriken>` — start a shuriken
+- `stop <shuriken>` — stop a shuriken
+- `configure <shuriken>` — render configuration
+- `http start <port>` — start the local HTTP API on a given port
+- `execute <script>` — execute a DSL snippet or file
+
+Examples
+
+```
+start example-service
+configure example-service
+http start 8080
+```
+
+The GUI and link parser accept `shurikenctl://` style links that map into DSL commands (for example `shurikenctl://start?shuriken=example-service`), allowing quick integrations from external apps.

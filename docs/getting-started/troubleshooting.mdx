@@ -1,0 +1,27 @@
+---
+title: Troubleshooting problems
+---
+
+Common troubleshooting steps
+
+1) Service won't start
+
+- Check `.ninja/shuriken.lck` for PID and start time
+- Inspect logs (path defined in `manifest.toml` under `[logs].log-path`)
+- Run the service binary/script manually to reproduce errors
+
+2) Configuration not applied
+
+ - Ensure `.ninja/config.tmpl` exists and variables referenced exist in `options.toml`
+ - Run `shurikenctl configure <name>` and inspect rendered output
+
+3) Installation problems
+
+- Verify permissions for destination directories
+- Check that the `.shuriken` package is valid and for correct platform
+
+4) If state appears inconsistent
+
+ - Use `shurikenctl stop <name>` then confirm process termination and remove stale lock files if necessary
+
+When in doubt, enable verbose logging and consult the shuriken's `postinstall` and management scripts to see what actions are being taken.

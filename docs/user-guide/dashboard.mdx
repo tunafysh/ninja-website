@@ -1,0 +1,25 @@
+---
+title: Dashboard Guide
+---
+
+The Dashboard is the main control surface for running shurikens, viewing status, and accessing configuration and logs.
+
+Overview
+ - At a glance: the dashboard lists installed shurikens and shows their runtime state (running, stopped, crashed). The UI obtains status from the `ShurikenManager` (the manager's `list`/`get` APIs).
+ - Quick actions: start, stop, and view logs for a selected shuriken.
+ - Projects & backup: access project files and run backups from the interface.
+
+Common tasks
+ - Start/Stop: click Start or Stop in the dashboard or use `shurikenctl start <name>` / `shurikenctl stop <name>` from the CLI. The GUI calls the manager's `start`/`stop` commands (exposed as Tauri commands and via the HTTP API).
+ - View logs: the dashboard links into configured logs for each shuriken; logs are configured per-shuriken using `ShurikenConfig` (see reference).
+ - Configure: open the configuration editor to render `config.tmpl` using the `Templater` (Tera-based) and the shuriken's `options.toml`.
+
+Integrations and shortcuts
+ - Deep links: the GUI supports `shurikenctl://` style deep links (for example `shurikenctl://start?shuriken=name`) which map to manager actions.
+ - API: the dashboard uses the app's internal Tauri commands which ultimately invoke the same manager functions available to the CLI and HTTP API.
+
+Troubleshooting from the dashboard
+ - If a service won't start, check the shuriken's `.ninja/shuriken.lck` and the configured logs. Use the Lockpick action to remove stale `.lck` files (dangerous—use with care).
+ - If templating fails, open the rendered `config.tmpl` preview and verify `options.toml` values; templating uses Tera with injected fields such as `ninja_root` and `user`.
+
+See also: the [CLI reference](../reference/cli.mdx) and the [Templater guide](../developer-guide/templater.mdx).

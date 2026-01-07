@@ -1,0 +1,20 @@
+---
+title: Ninja DSL
+---
+
+The Ninja DSL is the interactive command language used by the runtime and GUI to perform management tasks. It is implemented as a thin command layer that maps user-facing verbs (start, stop, configure, http) to manager operations.
+
+Programmatic usage
+
+- `DslContext` is available from the `ShurikenManager` and provides the execution context used by the GUI and link parser.
+- The function `execute_commands(&ctx, cmd)` runs a DSL command string and returns output or errors.
+
+Examples
+
+```text
+start example-service
+configure example-service
+http start 8080
+```
+
+The DSL is intended for orchestration and short automation snippets. For complex logic, prefer management scripts inside the shuriken (Lua `.ns`) or external orchestration tools.

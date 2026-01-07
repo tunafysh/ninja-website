@@ -1,0 +1,21 @@
+---
+title: Configuration
+---
+
+Ninja uses shuriken-local templates and an `options.toml` file to generate configuration for services.
+
+Key locations inside a shuriken:
+
+- `.ninja/manifest.toml` — shuriken metadata and management type
+- `.ninja/options.toml` — user-editable values used to render templates
+- `.ninja/config.tmpl` — Tera template rendered into the final config
+
+Workflow to generate config:
+
+1. Edit `.ninja/options.toml` for the installed shuriken (or supply overrides).
+2. Run `shurikenctl configure <shuriken-name>` which renders `config.tmpl` using the options and injected variables.
+3. The rendered file will be written to the path specified in `manifest.toml` under `[config].config-path`.
+
+Tips:
+- Keep templates simple and prefer defaults in `options.toml`.
+- Use injected variables like `{{ root }}` and `{{ platform }}` for portable packages.
