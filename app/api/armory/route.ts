@@ -1,6 +1,12 @@
 import { createShuriken, getShurikenByID, getShurikenByLabel, getShurikenByName, getShurikenByPlatform, updateShuriken, deleteShuriken} from "@/db/queries/armory";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Dispatches an incoming HTTP request to the appropriate shuriken CRUD handler based on the request method.
+ *
+ * @param req - The incoming NextRequest to route.
+ * @returns A NextResponse containing the handler's result; returns a 405 JSON error if the method is not allowed, or a 500 JSON error if an internal error occurs.
+ */
 async function handler(req: NextRequest) {
     try {
         switch(req.method) {
@@ -27,6 +33,19 @@ async function handler(req: NextRequest) {
     }
 }
 
+/**
+ * Handle GET requests for shuriken resources based on query parameters.
+ *
+ * Supports the following query parameters on the request URL: `id`, `name`, `label`, and `platform`.
+ * - If `id` or `name` is provided, returns the matching shuriken or a 404 when not found.
+ * - If `label` or `platform` is provided, returns a list of matching shurikens.
+ * - If no supported query parameter is provided, returns a 400 error instructing which parameters are accepted.
+ *
+ * @param req - The incoming NextRequest whose URL search parameters determine the lookup.
+ * @returns A NextResponse containing the requested shuriken object, an array of shurikens, or an error JSON.
+ *          Returns `200` on successful retrieval, `400` if no valid query parameter was provided,
+ *          `404` when a requested resource is not found, and `500` on server error.
+ */
 async function handleGet(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -86,6 +105,18 @@ async function handleGet(req: NextRequest) {
     }
 }
 
+/**
+ * Create a new shuriken resource from the request body.
+ *
+ * Validates that `name` is present in the parsed JSON body and attempts to persist the new shuriken.
+ * Handles invalid JSON and returns appropriate error responses.
+ *
+ * @returns A JSON response:
+ * - 200 with an empty body on successful creation.
+ * - 400 with `{ error: "Name is required" }` if the `name` field is missing.
+ * - 400 with `{ error: "Invalid JSON" }` if the request body is malformed JSON.
+ * - 500 with `{ error: "Failed to create shuriken" }` for other failures.
+ */
 async function handlePost(req: NextRequest) {
     try {
         const body = await req.json();
@@ -120,6 +151,15 @@ async function handlePost(req: NextRequest) {
     }
 }
 
+/**
+ * Update a shuriken identified by the `id` query parameter using the request JSON body.
+ *
+ * @returns A `NextResponse`:
+ * - `200` on successful update.
+ * - `400` if the `id` query parameter is missing or the request body is invalid JSON.
+ * - `404` if no shuriken exists with the given `id`.
+ * - `500` for other failures.
+ */
 async function handlePut(req: NextRequest) {
     try {
         const body = await req.json();
@@ -164,6 +204,18 @@ async function handlePut(req: NextRequest) {
     }
 }
 
+/**
+ * Deletes a shuriken identified by the `id` query parameter.
+ *
+ * Returns a JSON response indicating outcome:
+ * - 200: deletion succeeded with message "Shuriken deleted successfully".
+ * - 400: missing `id` with error "ID parameter is required for deletion".
+ * - 404: shuriken not found with error "Shuriken not found".
+ * - 500: server error with error "Failed to delete shuriken".
+ *
+ * @param req - Incoming request; `id` must be present in the URL search params.
+ * @returns A NextResponse containing the JSON result and the corresponding HTTP status.
+ */
 async function handleDelete(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);

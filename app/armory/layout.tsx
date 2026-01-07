@@ -3,6 +3,12 @@ import Image from "next/image"
 import logo from "@/public/logo-dark.svg"
 import { Button } from "@/components/ui/button"
 
+/**
+ * Layout wrapper that renders the Armory top navigation bar and a main content area.
+ *
+ * @param children - Content to display inside the layout's main area
+ * @returns A React element containing the Armory header (logo, title, action button) and the provided children
+ */
 export default function ArmoryLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">

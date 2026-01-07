@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import Distributor from "./distributor";
 import Example1 from "./example1";
 
+/**
+ * Renders the hero section with layered animated backgrounds, a frosted overlay, and centered hero content.
+ *
+ * The component tracks the cursor to animate an accent blob that follows the pointer and composes the headline,
+ * descriptive paragraph, and the Distributor component inside a responsive two-column layout.
+ *
+ * @returns The JSX element for the hero section
+ */
 export default function HeroSection() {
     const [mousePos, setMousePos] = useState([0, 0]);
     useEffect(() => {

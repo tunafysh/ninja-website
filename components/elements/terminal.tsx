@@ -4,9 +4,13 @@ import { useXTerm } from "react-xtermjs"
 import { FitAddon } from "@xterm/addon-fit"
 
 /**
- * Props:
- * - height?: number | string (defaults to 300px). You can also pass "100%" but
- *   if you do make sure the parent has an explicit height.
+ * Renders an embeddable in-browser terminal with a simple built-in command set.
+ *
+ * Initializes a terminal UI, writes a welcome prompt, echoes input, handles basic commands
+ * (`help`, `clear`, `about`, `version`, `contact`), and automatically fits to its container.
+ *
+ * @param height - Height of the terminal. A number is treated as pixels (`px`); strings like `"100%"` are accepted. When using a percentage value, ensure the parent element has an explicit height.
+ * @returns A React element containing the configured terminal.
  */
 export default function TerminalComponent({ height = 309 }: { height?: number | string }) {
   const { instance, ref } = useXTerm()

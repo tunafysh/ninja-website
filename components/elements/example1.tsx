@@ -1,5 +1,10 @@
 import { Item, ItemTitle } from "@/components/ui/item"
 
+/**
+ * Render a full-size container with a "Shurikens" header and three outlined Item blocks labeled "Apache".
+ *
+ * @returns The JSX element for the Example1 UI: a full-width, full-height wrapper containing a rounded, padded container with the header and three outlined `Item` components each holding an `ItemTitle` of "Apache".
+ */
 export default function Example1() {
     return (
         <div className="w-full h-full">

@@ -38,6 +38,16 @@ const shurikens = [
   },
 ]
 
+/**
+ * Render the Armory page: a searchable, filterable catalog of shurikens.
+ *
+ * Maintains local category and text query state and displays a responsive grid
+ * of shuriken cards filtered by the selected category and query. Includes a
+ * search input, category tabs, a sort dropdown (UI only, not wired to data),
+ * animated entry for each card, and an empty-state message when no items match.
+ *
+ * @returns A JSX element containing the Armory UI.
+ */
 export default function Armory() {
   const [filter, setFilter] = useState("All")
   const [query, setQuery] = useState("")
