@@ -29,4 +29,14 @@ shurikenctl --version
 shurikenctl help
 ```
 
+Publishing releases (recommended)
+
+If you distribute prebuilt artifacts, publish them via the project's GitHub **Releases** page and follow these best practices:
+
+- Attach platform-specific artifacts (AppImage, installers, tarballs) and their corresponding signature/checksum files (e.g. `.sig`, `.sha256`).
+- Add short release notes or a changelog summarizing user-facing changes.
+- Clearly label platforms and versions so users can pick the correct artifact.
+
+This makes it easy for users to verify artifacts and keeps installation links and documentation accurate.
+
 If you rely on system-level service management for long-running operation, create a systemd unit or equivalent to manage the `shurikenctl` process.
