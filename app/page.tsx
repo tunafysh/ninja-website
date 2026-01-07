@@ -1,15 +1,12 @@
-"use client"
-import { usePlatform } from "@/hooks/use-platform";
-import TerminalComponent from "@/components/elements/terminal";
-import Navbar from "@/components/elements/navbar";
-import HeroSection from "@/components/elements/hero-section";
+import { redirect } from 'next/navigation'
+import DevHome from "@/components/home";
 
+// Server component: redirect in production, render client child in development
 export default function Home() {
-  const platform = usePlatform()
-  return (
-  <div className="h-full p-4 gap-4 flex flex-col px-8">
-    <Navbar />
-    <HeroSection />
-  </div>
-  );
+  if (process.env.NODE_ENV === 'production') {
+    // Set PROD_REDIRECT in your environment to change this URL
+    redirect('https://github.com/tunafysh/ninja')
+  }
+
+  return <DevHome />
 }

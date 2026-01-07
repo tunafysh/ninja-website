@@ -2,4 +2,26 @@
 title: API Reference
 ---
 
-asdf
+Ninja provides both an HTTP REST surface and a GraphQL API for controlling shurikens programmatically.
+
+HTTP endpoints (examples)
+
+- `GET /shurikens` — list shuriken names
+- `GET /shurikens/states` — map of shuriken → state (running | idle)
+- `POST /shurikens/:name/start` — start the named shuriken
+- `POST /shurikens/:name/stop` — stop the named shuriken
+- `POST /shurikens/:name/configure` — render and write the shuriken config
+
+Example (start):
+
+```bash
+curl -X POST http://localhost:8080/shurikens/example-service/start
+```
+
+GraphQL
+
+The GraphQL API exposes mutations such as `startShuriken(name: String)` and `stopShuriken(name: String)`, as well as queries to list shurikens and states. Use this from clients that prefer a single endpoint and strongly-typed schema.
+
+Running the API
+
+Start the HTTP server locally via the CLI: `shurikenctl api --port 8080` and then call the endpoints shown above.

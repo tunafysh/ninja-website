@@ -1,5 +1,42 @@
 ---
-title: contribution
+title: Contribution
 ---
 
-sadf
+Thank you for considering a contribution. This document covers the high-level workflow for contributing to the project.
+
+Repository layout (important folders)
+
+- `core/` — runtime and manager logic
+- `CLI/` — `shurikenctl` command implementation
+- `API/` — HTTP and GraphQL API server
+- `GUI/` — desktop GUI (Tauri + web frontend)
+- `docs/` — documentation source
+
+How to contribute
+
+1. Fork the repository and create a topic branch for your work.
+2. Run tests and linters locally before opening a pull request.
+
+Commands to run locally
+
+```bash
+# install node dependencies for GUI (if editing frontend)
+pnpm install
+
+# run Rust tests and build
+cargo build --workspace
+cargo test --workspace
+```
+
+Pull request notes
+
+- Keep changes focused and small where possible.
+- Add tests for new features or bug fixes.
+- Describe your change and why it is needed in the PR description.
+
+Coding style
+
+- Follow existing module patterns and naming conventions.
+- Avoid large refactors without prior discussion.
+
+If you need help, open an issue first to discuss the planned change.

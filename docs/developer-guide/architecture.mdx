@@ -2,4 +2,11 @@
 title: Architecture
 ---
 
-lorem
+High-level architecture
+
+- The **Armory** stores and publishes `.shuriken` packages.
+- The **Ninja runtime** executes management logic: installs, configures, starts and stops shurikens.
+- **Shurikens** are self-contained bundles with `.ninja/manifest.toml`, templates and scripts.
+- **DSL / scripting engine** runs shuriken scripts for custom management logic.
+
+See the project's source code (manager, shuriken, CLI, etc.) for implementation examples and query logic.

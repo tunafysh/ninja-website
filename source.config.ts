@@ -1,14 +1,14 @@
-import { rehypeToc, remarkAdmonition, remarkGfm, remarkHeading } from 'fumadocs-core/mdx-plugins';
+import { rehypeToc, remarkDirectiveAdmonition, remarkGfm, remarkHeading } from 'fumadocs-core/mdx-plugins';
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
-import { remarkInstall } from "fumadocs-docgen"
-
+import { remarkNpm } from "fumadocs-core/mdx-plugins"
+import remarkDirective from "remark-directive";
 export const docs = defineDocs({
-  dir: 'docs',
+  dir: 'docs'
 });
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: [remarkGfm, remarkInstall, remarkAdmonition, remarkHeading],
+    remarkPlugins: [remarkGfm, remarkDirective, remarkNpm, remarkDirectiveAdmonition, remarkHeading],
     rehypePlugins: [rehypeToc],
   },
 });

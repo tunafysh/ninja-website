@@ -2,4 +2,24 @@
 title: The config templater
 ---
 
-asdf
+Ninja uses the Tera templating engine to render configuration files from `.ninja/config.tmpl` and user-provided values in `.ninja/options.toml`.
+
+How it works
+
+1. Load `options.toml` from the shuriken directory (user-editable)
+2. Inject default values such as `platform` and `root` (absolute shuriken path)
+3. Render `config.tmpl` using Tera and write output to the path specified in `manifest.toml`
+
+Template tips
+
+- Use `{{ root }}` to build portable paths relative to the shuriken.
+- Provide sensible defaults in `options.toml` to avoid undefined variables.
+- Keep logic in templates minimal; complex generation belongs in management scripts.
+
+Example snippet
+
+```ini
+[server]
+host = {{ host | default(value="127.0.0.1") }}
+port = {{ port | default(value=8080) }}
+```

@@ -2,4 +2,29 @@
 title: CLI Reference
 ---
 
-asdf
+ `shurikenctl` is the command-line interface for Ninja. It exposes lifecycle and packaging commands for working with shurikens.
+
+ Common commands
+
+ - `shurikenctl list` — list installed shurikens and their states
+ - `shurikenctl install <path>` — install a `.shuriken` package
+ - `shurikenctl remove <name>` — uninstall a shuriken
+ - `shurikenctl start <name>` — start a shuriken
+ - `shurikenctl stop <name>` — stop a shuriken
+ - `shurikenctl configure <name>` — render and write configuration
+ - `shurikenctl forge <path>` — build a `.shuriken` package from a local shuriken directory
+ - `shurikenctl new` — interactively generate a shuriken manifest
+ - `shurikenctl api --port <port>` — run the HTTP API server
+ - `shurikenctl lockpick <name>` — remove a stale lockfile (dangerous)
+ - `shurikenctl run <file>` — execute a script using the Ninja runtime
+
+ Examples
+
+ ```bash
+ shurikenctl install ./blacksmith/com.example.service-linux-x86_64.shuriken
+ shurikenctl configure example-service
+ shurikenctl start example-service
+ shurikenctl list
+ ```
+
+Run `shurikenctl --help` or `shurikenctl <command> --help` for command-specific flags and usage.

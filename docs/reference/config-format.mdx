@@ -2,4 +2,48 @@
 title: The config format
 ---
 
-sadf
+This reference describes the manifest and configuration formats used by a shuriken.
+
+Manifest (`.ninja/manifest.toml`) — key fields
+
+```toml
+[shuriken]
+name = "example-service"
+id = "com.example.service"
+version = "1.0.0"
+type = "daemon"
+require-admin = false
+
+[shuriken.management]
+type = "script" # or "native"
+script-path = "scripts/manage.ns"
+
+[config]
+config-path = "server.conf"
+
+[logs]
+log-path = "logs/service.log"
+
+[[tools]]
+name = "migrate"
+script = "scripts/migrate.lua"
+```
+
+Options (`.ninja/options.toml`)
+
+- Holds user-editable values used by templates. Example:
+
+```toml
+host = "0.0.0.0"
+port = 8080
+debug = true
+```
+
+Templates (`.ninja/config.tmpl`)
+
+- Tera templates rendered with `options.toml` plus injected variables like `{{ platform }}` and `{{ root }}`. The rendered output is written to the path defined by `[config].config-path`.
+
+Best practices
+
+- Prefer relative paths inside manifests (e.g. `./bin/server`).
+- Provide reasonable defaults in `options.toml` so configuration is minimal for users.

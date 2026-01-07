@@ -1,5 +1,26 @@
 ---
-title: Testing ninja
+title: Testing Ninja
 ---
 
-asdf
+Testing strategy
+
+- Unit tests: run `cargo test` in Rust crates (core, CLI, API, etc.) to validate logic.
+- Integration tests: exercise the `ShurikenManager` (start/configure/stop) against temporary shuriken directories.
+- Script tests: exercise `.ns` management scripts using the runtime engine API (execute functions and assert side-effects).
+
+Quick checks
+
+```bash
+# run unit tests
+cargo test --workspace
+
+# build and run the CLI for manual integration checks
+cargo build -p CLI --release
+./target/release/shurikenctl list
+```
+
+Tips
+
+- Use temporary directories for shuriken fixtures to avoid polluting `~/.ninja`.
+- Test both native and script-managed shurikens when possible.
+- Mock or stub external side effects (network, systemctl) in unit tests.
