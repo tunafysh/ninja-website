@@ -4,9 +4,9 @@ title: Installation
 
 ## Installation Options
 
-### 1. Prebuilt Binary
+### 1. Prebuilt Binary (Recommended)
 
-Download the latest release for your platform from the [GitHub releases page](https://github.com/tunafysh/ninja/releases):
+**Download from [GitHub releases](https://github.com/tunafysh/ninja/releases) for stability.** This is the recommended method and may be the only time you need to manually download—Ninja can update itself.
 
 ```bash
 # Extract and move to PATH
@@ -14,11 +14,15 @@ tar -xzf shurikenctl-*.tar.gz
 sudo mv shurikenctl /usr/local/bin/
 ```
 
+**Note:** Ninja includes self-update functionality, so future updates can be managed through the application itself.
+
 ### 2. Package Manager
 
-Use your platform's package manager where available (check releases for platform-specific packages).
+Use your platform's package manager where available (check [releases](https://github.com/tunafysh/ninja/releases) for platform-specific packages).
 
 ### 3. Build from Source
+
+For development or testing the latest changes. For production use, prefer prebuilt releases.
 
 Requires [Rust](https://rustup.rs/) toolchain:
 
