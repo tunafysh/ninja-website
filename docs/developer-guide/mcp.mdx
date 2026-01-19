@@ -1,23 +1,262 @@
 ---
-title: MCP integration
+title: MCP Integration
 ---
 
-Ninja provides tools to integrate with an MCP (Model/Message Control Plane) environment via a tool router. The MCP integration exposes a set of callable tools that wrap manager operations.
+Ninja provides Model Context Protocol (MCP) tools for automation and orchestration.
 
-- Common tools
+## What is MCP?
 
-- `start_shuriken` — start a shuriken by name
-- `stop_shuriken` — stop a shuriken by name
-- `restart_shuriken` — stop then start
-- `shuriken_status` — list shurikens and optionally return states
-- `dsl_execute` / `ninjascript_execute` — execute DSL or Ninja-script (Lua) scripts
+MCP enables AI assistants and automation systems to control Ninja through a standardized tool interface.
 
-Implementation notes
+## Available Tools
 
-- Tools are implemented with `rmcp` tool handlers and call into `ShurikenManager` methods.
-- Tools accept JSON-serializable parameter structs (for example `{ name: "example-service" }`) and return `CallToolResult` values.
+### Service Management
 
-Use cases
+```typescript
+// Start a shuriken
+start_shuriken({ name: "example-service" })
 
-- Remote control of services from orchestration systems
-- Exposing shuriken lifecycle actions to higher-level automation
+// Stop a shuriken
+stop_shuriken({ name: "example-service" })
+
+// Restart a shuriken
+restart_shuriken({ name: "example-service" })
+```
+
+### Status Queries
+
+```typescript
+// Get status of all shurikens
+shuriken_status()
+
+// Get detailed state information
+shuriken_status({ include_state: true })
+```
+
+### Script Execution
+
+```typescript
+// Execute DSL commands
+dsl_execute({ command: "start example-service" })
+
+// Execute Ninja script (Lua)
+ninjascript_execute({ 
+  script: "log.info('Hello from Ninja')" 
+})
+```
+
+### Configuration
+
+```typescript
+// Configure shuriken
+configure_shuriken({
+  name: "example-service",
+  options: {
+    port: 8080,
+    host: "localhost"
+  }
+})
+```
+
+## Implementation
+
+MCP tools are implemented using `rmcp` handlers that call `ShurikenManager` methods:
+
+```rust
+use rmcp::{Tool, CallToolResult};
+use ninja::manager::ShurikenManager;
+
+#[derive(Tool)]
+struct StartShurikenTool {
+    manager: Arc<ShurikenManager>,
+}
+
+impl StartShurikenTool {
+    async fn call(&self, params: StartParams) -> CallToolResult {
+        match self.manager.start(&params.name).await {
+            Ok(_) => CallToolResult::success(),
+            Err(e) => CallToolResult::error(e.to_string()),
+        }
+    }
+}
+```
+
+## Tool Parameters
+
+### StartShuriken
+
+```typescript
+{
+  name: string  // Shuriken name
+}
+```
+
+### ConfigureShuriken
+
+```typescript
+{
+  name: string,
+  options: Record<string, any>  // Key-value options
+}
+```
+
+### DslExecute
+
+```typescript
+{
+  command: string  // DSL command to execute
+}
+```
+
+### NinjascriptExecute
+
+```typescript
+{
+  script: string  // Lua script code
+}
+```
+
+## Response Format
+
+### Success
+
+```json
+{
+  "success": true,
+  "content": [
+    {
+      "type": "text",
+      "text": "Operation completed successfully"
+    }
+  ]
+}
+```
+
+### Error
+
+```json
+{
+  "success": false,
+  "content": [
+    {
+      "type": "text",
+      "text": "Error: Service not found"
+    }
+  ]
+}
+```
+
+## Use Cases
+
+### Automated Deployment
+
+```typescript
+// Install and configure service
+await mcp.call('dsl_execute', {
+  command: 'install /path/to/service.shuriken'
+});
+
+await mcp.call('configure_shuriken', {
+  name: 'webserver',
+  options: {
+    port: 8080,
+    workers: 4
+  }
+});
+
+await mcp.call('start_shuriken', {
+  name: 'webserver'
+});
+```
+
+### Health Monitoring
+
+```typescript
+// Check status of all services
+const status = await mcp.call('shuriken_status', {
+  include_state: true
+});
+
+// Restart failed services
+for (const service of status.data) {
+  if (service.state === 'Crashed') {
+    await mcp.call('restart_shuriken', {
+      name: service.name
+    });
+  }
+}
+```
+
+### Configuration Management
+
+```typescript
+// Update configuration across multiple services
+const services = ['web1', 'web2', 'web3'];
+
+for (const service of services) {
+  await mcp.call('configure_shuriken', {
+    name: service,
+    options: {
+      max_connections: 1000,
+      timeout: 30
+    }
+  });
+  
+  await mcp.call('restart_shuriken', {
+    name: service
+  });
+}
+```
+
+## Security Considerations
+
+- **Authentication** - MCP tools should be protected with authentication
+- **Authorization** - Limit tool access based on user roles
+- **Validation** - Validate all input parameters
+- **Audit** - Log all MCP tool invocations
+
+## Integration Examples
+
+### With AI Assistants
+
+```typescript
+// AI can control services through MCP
+const assistant = new Assistant({
+  tools: [
+    'start_shuriken',
+    'stop_shuriken',
+    'shuriken_status'
+  ]
+});
+
+// Natural language: "Start the web server"
+// Translates to:
+await mcp.call('start_shuriken', { name: 'webserver' });
+```
+
+### With Orchestration Systems
+
+```typescript
+// Integrate with deployment pipelines
+pipeline.on('deploy', async (service) => {
+  await mcp.call('stop_shuriken', { name: service });
+  await mcp.call('dsl_execute', { 
+    command: `install ${service}.shuriken` 
+  });
+  await mcp.call('start_shuriken', { name: service });
+});
+```
+
+## Debugging
+
+Enable MCP logging:
+
+```bash
+# Set log level
+export NINJA_LOG_LEVEL=debug
+
+# View MCP tool calls
+tail -f ~/.ninja/logs/mcp.log
+```
+
+See also: [API Reference](api), [DSL](dsl)

@@ -1,20 +1,166 @@
 ---
-title: Ninja DSL
+title: DSL
 ---
 
-The Ninja DSL is the interactive command language used by the runtime and GUI to perform management tasks. It is implemented as a thin command layer that maps user-facing verbs (start, stop, configure, http) to manager operations.
+The Ninja DSL (Domain-Specific Language) provides an interactive command interface for service management.
 
-Programmatic usage
+## Core Commands
 
-- `DslContext` is available from the `ShurikenManager` and provides the execution context used by the GUI and link parser.
-- The function `execute_commands(&ctx, cmd)` runs a DSL command string and returns output or errors.
+### Shuriken Management
 
-Examples
+```bash
+# List installed shurikens
+list
 
-```text
-start example-service
-configure example-service
-http start 8080
+# List with state information
+list state
+
+# Select a shuriken for operations
+select {name}
+
+# Start selected shuriken
+start
+
+# Stop selected shuriken
+stop
+
+# Install from package
+install {path}
+
+# Deselect current shuriken
+exit
 ```
 
-The DSL is intended for orchestration and short automation snippets. For complex logic, prefer management scripts inside the shuriken (Lua `.ns`) or external orchestration tools.
+### Configuration
+
+```bash
+# Generate configuration
+configure
+
+# Configure with inline values
+configure {
+  port = 8080
+  host = "localhost"
+  debug = true
+}
+
+# Set individual value
+set {key} {value}
+
+# Get value
+get {key}
+
+# Toggle boolean
+toggle {key}
+```
+
+### Tools and Scripts
+
+```bash
+# Execute Ninja script
+execute {script_path}
+
+# Run shuriken tool
+run-tool {tool_name}
+```
+
+### HTTP API Server
+
+```bash
+# Start HTTP server on port
+http {port}
+```
+
+## Value Types
+
+The DSL auto-detects types:
+
+```bash
+set name "string value"   # String with quotes
+set name value            # String without quotes
+set count 42              # Number
+set enabled true          # Boolean
+```
+
+## Comments
+
+```bash
+# Hash-style comment
+// Slash-style comment
+
+configure {
+  option = value  # Inline comment
+}
+```
+
+## Example Scripts
+
+### Basic Setup
+
+```bash
+# Install and configure service
+install ./my-service.shuriken
+
+select my-service
+
+configure {
+  port = 8080
+  workers = 4
+}
+
+start
+
+list state
+```
+
+### Configuration Management
+
+```bash
+select webserver
+
+# Set individual options
+set port 9000
+set ssl true
+set log_level "debug"
+
+# Generate config from template
+configure
+
+# Start service
+start
+```
+
+## Programmatic Usage
+
+The DSL is available via:
+
+- **CLI** - `shurikenctl` REPL mode
+- **GUI** - Embedded command execution
+- **HTTP API** - `/dsl/execute` endpoint
+- **Scripts** - `.ns` files with DSL commands
+
+### In Code
+
+```rust
+use ninja::dsl::DslContext;
+
+let ctx = DslContext::new(manager);
+execute_commands(&ctx, "start example-service")?;
+```
+
+## Use Cases
+
+- **Interactive management** - REPL for quick operations
+- **Automation scripts** - Batch configuration and deployment
+- **GUI integration** - Backend for dashboard actions
+- **Deep links** - `shurikenctl://start?shuriken={name}`
+
+## Limitations
+
+The DSL is designed for orchestration and short automation. For complex logic:
+
+- Use management scripts (`.ns` with Lua)
+- Write custom tools with full Ninja API access
+- Use external orchestration tools
+
+See also: [DSL Syntax Reference](../reference/dsl-syntax), [API Reference](../reference/api-reference)

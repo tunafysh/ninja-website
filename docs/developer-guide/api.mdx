@@ -2,13 +2,207 @@
 title: API
 ---
 
-The API exposes programmatic access to the Armory and shuriken lifecycle.
+Programmatic access to Ninja's shuriken lifecycle and management.
 
-Common endpoints / interfaces:
+## Available Interfaces
 
-- Install / uninstall a shuriken
-- Start / stop / restart services
-- Query status and list installed shurikens
-- Run shuriken-defined tools
+Ninja exposes multiple API interfaces:
 
-See the project's API server and query modules (HTTP handlers and GraphQL resolvers) in the source repository for concrete route implementations.
+- **Rust API** - Core `ShurikenManager` methods
+- **HTTP API** - REST endpoints for remote management
+- **Tauri Commands** - GUI integration layer
+- **MCP Tools** - Automation and orchestration
+
+## Core Operations
+
+### Shuriken Lifecycle
+
+```rust
+// Install
+manager.install(path).await?;
+
+// Start
+manager.start(name).await?;
+
+// Stop
+manager.stop(name).await?;
+
+// Restart
+manager.restart(name).await?;
+
+// Remove
+manager.remove(name).await?;
+```
+
+### Status and Queries
+
+```rust
+// List all shurikens
+let list = manager.list().await?;
+
+// Get specific shuriken
+let info = manager.get(name).await?;
+
+// Check state
+let state = manager.get_state(name).await?;
+```
+
+### Configuration
+
+```rust
+// Generate configuration
+manager.configure(name, options).await?;
+
+// Run tool
+manager.run_tool(name, tool_name).await?;
+```
+
+### Package Management
+
+```rust
+// Forge package
+let metadata = ArmoryMetadata {
+    name: "service".to_string(),
+    id: "com.example.service".to_string(),
+    platform: "linux-x86_64".to_string(),
+    version: "1.0.0".to_string(),
+    // ...
+};
+manager.forge(metadata, source_path).await?;
+
+// Open package
+let metadata = manager.open_shuriken(package_path).await?;
+```
+
+## HTTP API Endpoints
+
+### Service Management
+
+```bash
+# List shurikens
+GET /api/shurikens
+
+# Get shuriken info
+GET /api/shurikens/{name}
+
+# Start service
+POST /api/shurikens/{name}/start
+
+# Stop service
+POST /api/shurikens/{name}/stop
+
+# Configure
+POST /api/shurikens/{name}/configure
+Content-Type: application/json
+{
+  "options": {
+    "port": 8080,
+    "host": "localhost"
+  }
+}
+```
+
+### Package Operations
+
+```bash
+# Install package
+POST /api/install
+Content-Type: multipart/form-data
+file: package.shuriken
+
+# Forge package
+POST /api/forge
+Content-Type: application/json
+{
+  "metadata": { ... },
+  "source_path": "/path/to/source"
+}
+```
+
+### DSL Execution
+
+```bash
+# Execute DSL commands
+POST /api/dsl/execute
+Content-Type: application/json
+{
+  "command": "start example-service"
+}
+```
+
+## Tauri Commands
+
+GUI integration via Tauri commands:
+
+```typescript
+// List shurikens
+const shurikens = await invoke('list_shurikens');
+
+// Start service
+await invoke('start_shuriken', { name: 'example' });
+
+// Stop service
+await invoke('stop_shuriken', { name: 'example' });
+
+// Configure
+await invoke('configure_shuriken', { 
+  name: 'example',
+  options: { port: 8080 }
+});
+```
+
+## Response Formats
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
+
+### Shuriken Info
+
+```json
+{
+  "name": "example-service",
+  "state": "Running",
+  "manifest": {
+    "version": "1.0.0",
+    "type": "daemon"
+  }
+}
+```
+
+## Error Handling
+
+```rust
+use ninja::error::NinjaError;
+
+match manager.start(name).await {
+    Ok(_) => println!("Started successfully"),
+    Err(NinjaError::NotFound) => println!("Shuriken not found"),
+    Err(NinjaError::AlreadyRunning) => println!("Already running"),
+    Err(e) => println!("Error: {}", e),
+}
+```
+
+## Best Practices
+
+- **Check state** before operations to avoid errors
+- **Handle errors** gracefully with proper error types
+- **Use async/await** for non-blocking operations
+- **Validate inputs** before calling manager methods
+- **Monitor logs** for debugging API issues
+
+See also: [API Reference](../reference/api-reference), [MCP Integration](mcp)

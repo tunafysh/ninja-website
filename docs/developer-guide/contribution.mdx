@@ -1,42 +1,228 @@
 ---
-title: Contribution
+title: Contributing
 ---
 
-Thank you for considering a contribution. This document covers the high-level workflow for contributing to the project.
+Guidelines for contributing to the Ninja project.
 
-Repository layout (important folders)
+## Getting Started
 
-- `core/` — runtime and manager logic
-- `CLI/` — `shurikenctl` command implementation
-- `API/` — HTTP and GraphQL API server
-- `GUI/` — desktop GUI (Tauri + web frontend)
-- `docs/` — documentation source
+### Repository Structure
 
-How to contribute
-
-1. Fork the repository and create a topic branch for your work.
-2. Run tests and linters locally before opening a pull request.
-
-Commands to run locally
-
-```bash
-# install node dependencies for GUI (if editing frontend)
-pnpm install
-
-# run Rust tests and build
-cargo build --workspace
-cargo test --workspace
+```
+ninja/
+├── core/          # Runtime and manager logic
+├── CLI/           # shurikenctl command-line tool
+├── HTTP/          # REST API server
+├── GUI/           # Tauri desktop application
+├── MCP/           # Model Context Protocol tools
+├── FFI/           # Foreign function interface
+└── tests/         # Integration tests
 ```
 
-Pull request notes
+### Development Setup
 
-- Keep changes focused and small where possible.
-- Add tests for new features or bug fixes.
-- Describe your change and why it is needed in the PR description.
+**1. Clone the repository**
 
-Coding style
+```bash
+git clone https://github.com/tunafysh/ninja.git
+cd ninja
+```
 
-- Follow existing module patterns and naming conventions.
-- Avoid large refactors without prior discussion.
+**2. Install dependencies**
 
-If you need help, open an issue first to discuss the planned change.
+```bash
+# Rust toolchain (required)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Node.js and pnpm (for GUI)
+curl -fsSL https://get.pnpm.io/install.sh | sh
+
+# GUI dependencies
+cd GUI
+pnpm install
+```
+
+**3. Build the project**
+
+```bash
+# Build all crates
+cargo build --workspace
+
+# Build release
+cargo build --release
+
+# Build GUI
+cd GUI
+pnpm tauri build
+```
+
+## Development Workflow
+
+### 1. Create a Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### 2. Make Changes
+
+Follow existing code patterns and conventions:
+
+- Use Rust idioms and best practices
+- Add tests for new features
+- Update documentation as needed
+- Keep commits focused and atomic
+
+### 3. Test Your Changes
+
+```bash
+# Run unit tests
+cargo test --workspace
+
+# Run specific tests
+cargo test -p core
+
+# Build and test CLI
+cargo build -p CLI --release
+./target/release/shurikenctl --version
+
+# Test GUI
+cd GUI
+pnpm tauri dev
+```
+
+### 4. Lint and Format
+
+```bash
+# Format code
+cargo fmt --all
+
+# Run clippy
+cargo clippy --workspace -- -D warnings
+```
+
+### 5. Create Pull Request
+
+- Write a clear PR title and description
+- Reference related issues
+- Explain what changed and why
+- Include test results if applicable
+
+## Coding Standards
+
+### Rust Style
+
+- Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
+- Use `cargo fmt` for consistent formatting
+- Fix all `clippy` warnings
+- Add documentation comments for public APIs
+
+```rust
+/// Starts a shuriken service by name.
+///
+/// # Arguments
+/// * `name` - The shuriken identifier
+///
+/// # Returns
+/// * `Ok(())` on success
+/// * `Err(NinjaError)` on failure
+pub async fn start(&self, name: &str) -> Result<(), NinjaError> {
+    // Implementation
+}
+```
+
+### Commit Messages
+
+Use conventional commits:
+
+```
+feat: add support for platform-specific configuration
+fix: resolve race condition in process spawning
+docs: update installation guide
+test: add integration tests for shuriken manager
+refactor: simplify configuration templating
+```
+
+### Documentation
+
+- Update relevant `.mdx` files for user-facing changes
+- Add inline comments for complex logic
+- Include examples in API documentation
+
+## Testing Requirements
+
+### New Features
+
+- Add unit tests for new functionality
+- Include integration tests where appropriate
+- Test both success and error cases
+
+```rust
+#[tokio::test]
+async fn test_new_feature() {
+    // Test implementation
+}
+
+#[tokio::test]
+async fn test_new_feature_error_case() {
+    // Test error handling
+}
+```
+
+### Bug Fixes
+
+- Add regression tests to prevent reoccurrence
+- Verify the fix resolves the original issue
+
+## Pull Request Checklist
+
+Before submitting:
+
+- [ ] Code builds without warnings
+- [ ] All tests pass
+- [ ] New tests added for changes
+- [ ] Documentation updated
+- [ ] Code formatted with `cargo fmt`
+- [ ] No `clippy` warnings
+- [ ] Commit messages follow conventions
+
+## Getting Help
+
+- **Questions?** Open a [discussion](https://github.com/tunafysh/ninja/discussions)
+- **Bug report?** Create an [issue](https://github.com/tunafysh/ninja/issues)
+- **Feature idea?** Start a discussion first
+
+## Code Review Process
+
+1. Maintainers review PR for:
+   - Code quality and style
+   - Test coverage
+   - Documentation
+   - Breaking changes
+
+2. Address review feedback
+
+3. Once approved, changes are merged
+
+## Areas to Contribute
+
+### Good First Issues
+
+Look for issues labeled `good-first-issue`:
+
+- Documentation improvements
+- Bug fixes with reproduction steps
+- Test coverage improvements
+
+### Advanced Contributions
+
+- New shuriken management features
+- Platform-specific improvements
+- Performance optimizations
+- API enhancements
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the project's license.
+
+See also: [Architecture](architecture), [Testing](testing)
