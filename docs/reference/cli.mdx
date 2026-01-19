@@ -2,29 +2,317 @@
 title: CLI Reference
 ---
 
- `shurikenctl` is the command-line interface for Ninja. It exposes lifecycle and packaging commands for working with shurikens.
+Complete reference for the `shurikenctl` command-line interface.
 
- Common commands
+## Installation
 
- - `shurikenctl list` — list installed shurikens and their states
- - `shurikenctl install <path>` — install a `.shuriken` package
- - `shurikenctl remove <name>` — uninstall a shuriken
- - `shurikenctl start <name>` — start a shuriken
- - `shurikenctl stop <name>` — stop a shuriken
- - `shurikenctl configure <name>` — render and write configuration
- - `shurikenctl forge <path>` — build a `.shuriken` package from a local shuriken directory
- - `shurikenctl new` — interactively generate a shuriken manifest
- - `shurikenctl api --port <port>` — run the HTTP API server
- - `shurikenctl lockpick <name>` — remove a stale lockfile (dangerous)
- - `shurikenctl run <file>` — execute a script using the Ninja runtime
+See [Installation Guide](../getting-started/installation) for setup instructions.
 
- Examples
+## Global Options
 
- ```bash
- shurikenctl install ./blacksmith/com.example.service-linux-x86_64.shuriken
- shurikenctl configure example-service
- shurikenctl start example-service
- shurikenctl list
- ```
+```bash
+shurikenctl [OPTIONS] [COMMAND]
 
-Run `shurikenctl --help` or `shurikenctl <command> --help` for command-specific flags and usage.
+Options:
+  --version     Show version information
+  --help        Display help message
+```
+
+## Commands
+
+### list
+
+List installed shurikens and their states.
+
+```bash
+shurikenctl list [OPTIONS]
+
+# Show all shurikens
+shurikenctl list
+
+# Show with detailed state
+shurikenctl list --state
+```
+
+**Output:**
+```
+example-service    (Running)
+webserver          (Idle)
+database           (Running)
+```
+
+### install
+
+Install a `.shuriken` package.
+
+```bash
+shurikenctl install <PATH>
+
+# Examples
+shurikenctl install ./service.shuriken
+shurikenctl install ~/Downloads/com.example.app-linux-x86_64.shuriken
+```
+
+**Process:**
+1. Validates magic bytes and metadata
+2. Verifies SHA-256 signature
+3. Extracts to `~/.ninja/shurikens/{name}/`
+4. Runs post-install script if specified
+
+### remove
+
+Uninstall a shuriken.
+
+```bash
+shurikenctl remove <NAME>
+
+# Example
+shurikenctl remove example-service
+```
+
+**Warning:** This deletes all shuriken files. Backup data first if needed.
+
+### start
+
+Start a shuriken service.
+
+```bash
+shurikenctl start <NAME>
+
+# Example
+shurikenctl start webserver
+```
+
+**Behavior:**
+- Native: Spawns process and creates lock file
+- Script: Executes `start()` function in management script
+
+### stop
+
+Stop a running shuriken.
+
+```bash
+shurikenctl stop <NAME>
+
+# Example
+shurikenctl stop webserver
+```
+
+**Behavior:**
+- Native: Terminates process using PID verification
+- Script: Executes `stop()` function in management script
+
+### restart
+
+Restart a shuriken (stop then start).
+
+```bash
+shurikenctl restart <NAME>
+
+# Example
+shurikenctl restart database
+```
+
+### configure
+
+Generate configuration from template and options.
+
+```bash
+shurikenctl configure <NAME>
+
+# Example
+shurikenctl configure webserver
+```
+
+**Process:**
+1. Loads `.ninja/options.toml`
+2. Injects `{{ platform }}` and `{{ root }}`
+3. Renders `.ninja/config.tmpl`
+4. Writes to configured path
+
+### forge
+
+Build a `.shuriken` package from a directory.
+
+```bash
+shurikenctl forge [PATH]
+
+# Interactive mode
+shurikenctl forge
+
+# Specify source directory
+shurikenctl forge ./my-service
+```
+
+**Creates:** `~/.ninja/blacksmith/{id}-{platform}.shuriken`
+
+**Interactive prompts:**
+- Name and ID
+- Version
+- Platform
+- Synopsis and description
+- Authors and license
+
+### new
+
+Create a new shuriken manifest interactively.
+
+```bash
+shurikenctl new
+
+# Creates .ninja/manifest.toml with guided prompts
+```
+
+### run
+
+Execute a Ninja script.
+
+```bash
+shurikenctl run <FILE>
+
+# Examples
+shurikenctl run setup.ns
+shurikenctl run scripts/deploy.lua
+```
+
+Executes Lua script with full Ninja API access.
+
+### api
+
+Start the HTTP API server.
+
+```bash
+shurikenctl api [OPTIONS]
+
+Options:
+  --port <PORT>    Server port (default: 8080)
+
+# Examples
+shurikenctl api --port 3000
+shurikenctl api
+```
+
+See [API Reference](api-reference) for endpoints.
+
+### lockpick
+
+Remove a stale lock file.
+
+```bash
+shurikenctl lockpick <NAME>
+
+# Example
+shurikenctl lockpick webserver
+```
+
+**⚠️ Warning:** Only use if you've verified the process is not running. Misuse can cause race conditions.
+
+**Safe usage:**
+```bash
+# 1. Verify process is stopped
+ps aux | grep service-name
+
+# 2. Stop if needed
+shurikenctl stop service-name
+
+# 3. Remove stale lock
+shurikenctl lockpick service-name
+```
+
+## Examples
+
+### Complete Workflow
+
+```bash
+# Install package
+shurikenctl install ./myapp.shuriken
+
+# Configure
+shurikenctl configure myapp
+
+# Start
+shurikenctl start myapp
+
+# Check status
+shurikenctl list
+
+# View specific state
+shurikenctl list --state
+
+# Stop
+shurikenctl stop myapp
+```
+
+### Package Development
+
+```bash
+# Create new shuriken
+shurikenctl new
+
+# Test locally
+shurikenctl start myapp
+
+# Build package
+shurikenctl forge ./myapp
+
+# Package created at:
+# ~/.ninja/blacksmith/com.example.myapp-linux-x86_64.shuriken
+```
+
+### API Server
+
+```bash
+# Start server
+shurikenctl api --port 8080
+
+# In another terminal, use curl
+curl http://localhost:8080/shurikens
+curl -X POST http://localhost:8080/shurikens/myapp/start
+```
+
+## Environment Variables
+
+```bash
+# Ninja directory (default: ~/.ninja)
+export NINJA_DIR=/custom/path
+
+# Log level
+export NINJA_LOG_LEVEL=debug
+```
+
+## Exit Codes
+
+- `0` - Success
+- `1` - General error
+- `2` - Invalid arguments
+- `3` - Service not found
+- `4` - Service already running
+- `5` - Service not running
+
+## Interactive Mode
+
+Run `shurikenctl` without arguments for REPL mode:
+
+```bash
+shurikenctl
+
+ninja> list
+example-service    (Running)
+
+ninja> configure webserver
+Configuration generated successfully
+
+ninja> exit
+```
+
+## Help
+
+Get help for any command:
+
+```bash
+shurikenctl --help
+shurikenctl install --help
+shurikenctl forge --help
+```
+
+See also: [DSL Syntax](dsl-syntax), [API Reference](api-reference)

@@ -1,49 +1,325 @@
 ---
-title: The config format
+title: Configuration Format
 ---
 
-This reference describes the manifest and configuration formats used by a shuriken.
+Reference for shuriken configuration files and formats.
 
-Manifest (`.ninja/manifest.toml`) — key fields
+## Manifest File
+
+The manifest (`manifest.toml`) defines a shuriken's metadata and behavior.
+
+**Location:** `.ninja/manifest.toml`
+
+### Complete Example
 
 ```toml
 [shuriken]
 name = "example-service"
 id = "com.example.service"
 version = "1.0.0"
-type = "daemon"
+type = "daemon"              # or "executable"
 require-admin = false
 
 [shuriken.management]
-type = "script" # or "native"
-script-path = "scripts/manage.ns"
+type = "script"              # or "native" (deprecated)
+script-path = "manage.ns"
 
+# Optional: Configuration
 [config]
 config-path = "server.conf"
 
+# Optional: Logging
 [logs]
 log-path = "logs/service.log"
 
+# Optional: Tools
 [[tools]]
 name = "migrate"
 script = "scripts/migrate.lua"
+description = "Run database migrations"
+
+[[tools]]
+name = "backup"
+script = "scripts/backup.lua"
+description = "Backup application data"
 ```
 
-Options (`.ninja/options.toml`)
+### Fields Reference
 
-- Holds user-editable values used by templates. Example:
+#### [shuriken]
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | String | Yes | Shuriken display name |
+| `id` | String | Yes | Unique identifier (e.g., `com.example.service`) |
+| `version` | String | Yes | Semantic version (e.g., `1.0.0`) |
+| `type` | String | Yes | `daemon` or `executable` |
+| `require-admin` | Boolean | No | Requires elevated privileges (default: `false`) |
+
+#### [shuriken.management]
+
+**Script Management (Recommended):**
 
 ```toml
-host = "0.0.0.0"
-port = 8080
-debug = true
+[shuriken.management]
+type = "script"
+script-path = "manage.ns"
 ```
 
-Templates (`.ninja/config.tmpl`)
+**Native Management (Deprecated):**
 
-- Tera templates rendered with `options.toml` plus injected variables like `{{ platform }}` and `{{ root }}`. The rendered output is written to the path defined by `[config].config-path`.
+```toml
+[shuriken.management]
+type = "native"
 
-Best practices
+[shuriken.management.bin-path]
+linux = "./bin/server"
+windows = ".\\bin\\server.exe"
+macos = "./bin/server"
 
-- Prefer relative paths inside manifests (e.g. `./bin/server`).
-- Provide reasonable defaults in `options.toml` so configuration is minimal for users.
+args = ["--port", "8080", "--config", "server.conf"]
+
+[shuriken.management.cwd]
+linux = "."
+windows = "."
+macos = "."
+```
+
+#### [config]
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `config-path` | String | No | Output path for rendered configuration |
+
+Template is always `.ninja/config.tmpl`.
+
+#### [logs]
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `log-path` | String | No | Path to log file |
+
+#### [[tools]]
+
+Array of tool definitions:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | String | Yes | Tool identifier |
+| `script` | String | Yes | Path to Lua script |
+| `description` | String | No | Tool description |
+
+## Options File
+
+User-editable configuration values.
+
+**Location:** `.ninja/options.toml`
+
+### Example
+
+```toml
+# Server settings
+host = "localhost"
+port = 8080
+debug = false
+workers = 4
+
+# Database
+db_host = "localhost"
+db_port = 5432
+db_name = "myapp"
+db_user = "postgres"
+
+# Paths (will be combined with {{ root }})
+data_dir = "data"
+logs_dir = "logs"
+
+# Features
+enable_ssl = true
+enable_metrics = false
+```
+
+### Value Types
+
+```toml
+# Strings
+name = "value"
+
+# Numbers
+port = 8080
+timeout = 30
+
+# Booleans
+debug = true
+enabled = false
+
+# Arrays
+workers = [1, 2, 3, 4]
+hosts = ["localhost", "127.0.0.1"]
+
+# Tables
+[database]
+host = "localhost"
+port = 5432
+```
+
+## Configuration Template
+
+Tera template for generating configuration files.
+
+**Location:** `.ninja/config.tmpl`
+
+### Example
+
+```ini
+[server]
+host = {{ host | default(value="0.0.0.0") }}
+port = {{ port | default(value=8080) }}
+debug = {{ debug }}
+workers = {{ workers }}
+
+[database]
+url = postgresql://{{ db_user }}@{{ db_host }}:{{ db_port }}/{{ db_name }}
+pool_size = {{ db_pool_size | default(value=10) }}
+
+[paths]
+data = {{ root }}/{{ data_dir }}
+logs = {{ root }}/{{ logs_dir }}
+static = {{ root }}/static
+
+[system]
+platform = {{ platform }}
+root_dir = {{ root }}
+
+{% if enable_ssl %}
+[ssl]
+cert = {{ ssl_cert }}
+key = {{ ssl_key }}
+{% endif %}
+```
+
+### Injected Variables
+
+Ninja automatically provides:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `{{ platform }}` | Current OS | `linux`, `windows`, `macos` |
+| `{{ root }}` | Shuriken directory | `/home/user/.ninja/shurikens/myapp` |
+
+### Template Features
+
+**Filters:**
+```ini
+# Default values
+port = {{ port | default(value=8080) }}
+
+# String operations
+name = {{ name | upper }}
+path = {{ base | replace(from="\\", to="/") }}
+```
+
+**Conditionals:**
+```ini
+{% if enable_feature %}
+[feature]
+enabled = true
+{% endif %}
+
+{% if env == "production" %}
+debug = false
+{% else %}
+debug = true
+{% endif %}
+```
+
+**Loops:**
+```toml
+{% for worker in workers %}
+[[workers]]
+id = {{ worker.id }}
+threads = {{ worker.threads }}
+{% endfor %}
+```
+
+## Lock File
+
+Runtime state file created when a service starts.
+
+**Location:** `.ninja/shuriken.lck`
+
+### Native Management
+
+```json
+{
+  "name": "example-service",
+  "type": "Native",
+  "pid": 12345,
+  "start_time": 1638360000
+}
+```
+
+### Script Management
+
+```json
+{
+  "name": "example-service",
+  "type": "Script"
+}
+```
+
+**Note:** This file is managed by Ninja. Don't edit manually.
+
+## Package Metadata
+
+Metadata embedded in `.shuriken` packages (CBOR format).
+
+### Structure
+
+```json
+{
+  "name": "example-service",
+  "id": "com.example.service",
+  "platform": "linux-x86_64",
+  "version": "1.0.0",
+  "synopsis": "Short description",
+  "description": "Detailed description...",
+  "authors": ["Author Name"],
+  "license": "MIT",
+  "postinstall": "scripts/postinstall.ns"
+}
+```
+
+### Platform Values
+
+- `linux-x86_64`
+- `linux-aarch64`
+- `windows-x86_64`
+- `macos-x86_64`
+- `macos-aarch64`
+- `any` (platform-independent)
+
+## Best Practices
+
+### Manifests
+
+1. **Use relative paths** - Makes packages portable
+2. **Prefer script management** - More flexible than native
+3. **Document tools** - Add clear descriptions
+4. **Version appropriately** - Follow semantic versioning
+
+### Options
+
+1. **Provide defaults** - Make configuration optional
+2. **Group related options** - Use TOML tables
+3. **Add comments** - Explain complex options
+4. **Validate values** - Check in management scripts
+
+### Templates
+
+1. **Use defaults** - Provide fallback values
+2. **Reference `{{ root }}`** - For portable paths
+3. **Keep logic simple** - Move complexity to scripts
+4. **Test rendering** - Verify output before deployment
+
+See also: [Configuration Guide](../getting-started/configuration), [Templater](../developer-guide/templater)
