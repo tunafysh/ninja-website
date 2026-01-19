@@ -1,27 +1,80 @@
 ---
-title: Troubleshooting problems
+title: Troubleshooting
 ---
 
-Common troubleshooting steps
+Common issues and solutions for Ninja service management.
 
-1) Service won't start
+## Service Won't Start
 
-- Check `.ninja/shuriken.lck` for PID and start time
-- Inspect logs (path defined in `manifest.toml` under `[logs].log-path`)
-- Run the service binary/script manually to reproduce errors
+**Check the lock file:**
 
-2) Configuration not applied
+```bash
+cat ~/.ninja/shurikens/{name}/.ninja/shuriken.lck
+```
 
- - Ensure `.ninja/config.tmpl` exists and variables referenced exist in `options.toml`
- - Run `shurikenctl configure <name>` and inspect rendered output
+Look for PID and start time to verify process state.
 
-3) Installation problems
+**Inspect logs:**
 
-- Verify permissions for destination directories
-- Check that the `.shuriken` package is valid and for correct platform
+Check the log path defined in `manifest.toml` under `[logs].log-path`.
 
-4) If state appears inconsistent
+**Test manually:**
 
- - Use `shurikenctl stop <name>` then confirm process termination and remove stale lock files if necessary
+Run the service binary or script directly to reproduce errors:
 
-When in doubt, enable verbose logging and consult the shuriken's `postinstall` and management scripts to see what actions are being taken.
+```bash
+cd ~/.ninja/shurikens/{name}
+./bin/service --config config.ini
+```
+
+## Configuration Not Applied
+
+**Verify template exists:**
+
+```bash
+ls ~/.ninja/shurikens/{name}/.ninja/config.tmpl
+```
+
+**Check options file:**
+
+Ensure all variables in the template are defined in `options.toml`.
+
+**Regenerate configuration:**
+
+```bash
+shurikenctl configure {name}
+# Check output at the configured config-path
+```
+
+## Installation Issues
+
+**Verify permissions:**
+
+```bash
+# Check write access to Ninja directory
+ls -ld ~/.ninja/shurikens/
+```
+
+**Validate package:**
+
+Ensure the `.shuriken` file matches your platform (`linux-x86_64`, `windows-x86_64`, `macos-aarch64`, or `any`).
+
+## Inconsistent State
+
+**Stop and cleanup:**
+
+```bash
+shurikenctl stop {name}
+
+# If process is stuck, manually remove lock file
+rm ~/.ninja/shurikens/{name}/.ninja/shuriken.lck
+
+# Verify no processes are running
+ps aux | grep {name}
+```
+
+## Getting Help
+
+- Enable verbose logging in shuriken management scripts
+- Review `postinstall` scripts for setup issues
+- Check the [GitHub issues](https://github.com/tunafysh/ninja/issues) for known problems
