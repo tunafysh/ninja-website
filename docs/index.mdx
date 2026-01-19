@@ -1,15 +1,33 @@
 ---
-title: Main
+title: Welcome to Ninja
 ---
 
-Welcome to Ninja — documentation for the Shuriken-based service manager.
+Ninja is a service management system that packages services as **Shurikens** — self-contained bundles containing metadata, management scripts, configuration templates, and optional tools.
 
-Ninja manages services packaged as "shurikens": self-contained, versioned service bundles that include metadata, management scripts, configuration templates and optional tools. This site is organized to help end users install and run shurikens, and to help developers extend and package services for distribution.
+## Quick Navigation
 
-- Quickstart: Getting up and running with a shuriken
-- User Guide: Day-to-day usage and the Armory
-- Developer Guide: Building shurikens, the DSL and testing
-- Reference: Manifest fields, CLI and API details
+- **[Getting Started](getting-started/quickstart)** - Install and run your first shuriken
+- **[User Guide](user-guide/dashboard)** - Daily usage, dashboard, and the Armory
+- **[Developer Guide](developer-guide/architecture)** - Build shurikens, DSL, and testing
+- **[Reference](reference/cli)** - CLI commands, API, and configuration details
 
-Start with the [Getting Started](getting-started/quickstart.mdx) guide for a minimal, runnable example.
+## What is a Shuriken?
+
+A shuriken is a packaged service distributed as a `.shuriken` file containing:
+
+- **Metadata** - Name, version, platform, and description
+- **Management** - Start/stop logic (script or native binary)
+- **Configuration** - Templates and user options
+- **Tools** - Optional executable scripts
+- **Lifecycle hooks** - Post-install and other scripts
+
+## Key Features
+
+- **Cross-platform** - Linux, macOS, and Windows support
+- **Flexible management** - Script-based or native binary control
+- **Template-based config** - Tera templates with user options
+- **Process safety** - PID + start time verification
+- **Scriptable** - Lua API and DSL for automation
+
+Start with the [Quickstart Guide](getting-started/quickstart) for a practical example.
 

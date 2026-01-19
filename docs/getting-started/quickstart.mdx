@@ -1,39 +1,56 @@
 ---
-title: Quickstart Guide
+title: Quickstart
 ---
 
-This quickstart shows the minimal steps to install a shuriken, configure it, and start the service.
+Get started with Ninja in 4 steps.
 
-1) Install Ninja (choose your platform method — binary, package manager or build from source). Example (build from source):
+## 1. Install Ninja
+
+Choose your preferred method:
 
 ```bash
-# build from source (example)
+# Option A: Download prebuilt binary
+# Visit https://github.com/tunafysh/ninja/releases
+
+# Option B: Build from source
 git clone https://github.com/tunafysh/ninja.git
 cd ninja
 cargo build --release
-# copy the CLI binary to a PATH location
 sudo cp target/release/shurikenctl /usr/local/bin/
 ```
 
-2) Install a shuriken
+## 2. Install a Shuriken
 
 ```bash
-# install a .shuriken package
-shurikenctl install ./blacksmith/com.example.service-linux-x86_64.shuriken
+shurikenctl install path/to/service.shuriken
 ```
 
-3) Configure (if required)
+The shuriken will be extracted to `~/.ninja/shurikens/{name}/`.
+
+## 3. Configure (Optional)
+
+If the shuriken uses configuration templates:
 
 ```bash
-# edit ~/.ninja/shurikens/example-service/.ninja/options.toml
-shurikenctl configure example-service
+# Edit options
+nano ~/.ninja/shurikens/{name}/.ninja/options.toml
+
+# Generate config
+shurikenctl configure {name}
 ```
 
-4) Start and check status
+## 4. Start the Service
 
 ```bash
-shurikenctl start example-service
+# Start the service
+shurikenctl start {name}
+
+# Check status
 shurikenctl list
 ```
 
-That's it — the service should be running. See the User Guide and Reference for details on packaging, manifest fields and management types.
+## Next Steps
+
+- Learn about [Configuration](configuration) and templates
+- Explore the [User Guide](../user-guide/dashboard) for daily operations
+- Build your own shurikens in the [Developer Guide](../developer-guide/architecture)
