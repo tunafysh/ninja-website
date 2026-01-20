@@ -1,28 +1,103 @@
 ---
-title: Armory Guide
+title: Armory
 ---
 
-The Armory is where you browse, inspect, and install distributable shurikens (.shuriken packages).
+The Armory is where you browse, install, and manage `.shuriken` packages.
 
-Use the GUI to browse remote or local packages, preview metadata, and install with a single click. Each item in the Armory is backed by the project's `ArmoryMetadata` (name, id, platform, version, synopsis, description, authors, license, optional `postinstall`), which the app reads from the `.shuriken` package when you open it.
+## What is the Armory?
 
-Installing
- - GUI: click **Install local file** and select a `.shuriken` file. The GUI uses the `open_shuriken` and `install_shuriken` Tauri commands to validate the package and hand it to the `ShurikenManager` for installation.
- - CLI: use `shurikenctl install /path/to/package.shuriken` to install from the command line; the manager validates the package header, verifies the signature, extracts the archive, and writes files to `~/.ninja/shurikens/{name}/`.
+The Armory displays distributable shuriken packages with metadata including:
 
-What the installer does
- - Validates magic bytes and reads CBOR metadata from the package.
- - Verifies archive length and signature (SHA-256) before extracting the tar.gz payload.
- - Extracts files to the appropriate `~/.ninja/shurikens/{name}/` folder and writes `.ninja/manifest.toml` and `options.toml` where applicable.
- - Runs a `postinstall` script when the metadata includes one.
+- Name, ID, and version
+- Platform compatibility
+- Synopsis and description
+- Authors and license
+- Post-install scripts
 
-Working with Armory items
- - Preview metadata: the GUI shows synopsis, description, authors, license, supported platforms and checksum.
- - Install/uninstall: installed state is tracked in the manager; use `shurikenctl remove <name>` to uninstall.
- - Upgrading: install a newer `.shuriken` package (same id, higher version) to upgrade; the manager will extract the new files.
+## Installing Packages
 
-Developer notes
- - Create distributable packages with the `forge` API or `shurikenctl forge` command. `forge` serializes `ArmoryMetadata` as CBOR, packs a tar.gz archive of the source, appends sizes and a SHA-256 signature to produce a `.shuriken` file.
- - The GUI expects `ArmoryMetadata` fields (see `core::manager::ArmoryMetadata`) and will call `open_shuriken` to read metadata before install.
+### Via GUI
 
-See also: the [.shuriken format reference](../reference/config-format.mdx) and the [CLI reference (forge)](../reference/cli.mdx).
+1. Click **Install local file**
+2. Select a `.shuriken` file
+3. Review metadata preview
+4. Confirm installation
+
+### Via CLI
+
+```bash
+shurikenctl install path/to/package.shuriken
+```
+
+## Installation Process
+
+When you install a `.shuriken` package, Ninja:
+
+1. **Validates** the magic bytes (`HSRZEG`)
+2. **Reads** CBOR-encoded metadata
+3. **Verifies** SHA-256 signature
+4. **Extracts** tar.gz archive to `~/.ninja/shurikens/{name}/`
+5. **Runs** post-install script if specified
+
+## Package Format
+
+`.shuriken` files contain:
+
+```
+[MAGIC]              6 bytes  - "HSRZEG"
+[metadata_length]    2 bytes  - u16 little-endian
+[metadata]           N bytes  - CBOR-encoded
+[archive_length]     4 bytes  - u32 little-endian
+[archive]            N bytes  - tar.gz
+[signature]          32 bytes - SHA-256
+```
+
+## Managing Packages
+
+### View Installed
+
+```bash
+shurikenctl list
+```
+
+### Uninstall
+
+```bash
+shurikenctl remove {name}
+```
+
+### Upgrade
+
+Install a newer version with the same ID:
+
+```bash
+shurikenctl install path/to/package-v2.shuriken
+```
+
+## Creating Packages
+
+Build distributable packages with the `forge` command:
+
+```bash
+shurikenctl forge
+```
+
+This creates a `.shuriken` file in the `blacksmith/` directory with:
+- CBOR metadata
+- Compressed archive
+- SHA-256 signature
+
+See [Developer Guide](../developer-guide/architecture) for packaging details.
+
+## Platform Compatibility
+
+Packages specify target platforms:
+
+- `linux-x86_64`
+- `windows-x86_64`
+- `macos-aarch64`
+- `any` (platform-independent)
+
+Ninja validates platform compatibility during installation.
+
+See also: [CLI Reference](../reference/cli), [Configuration Format](../reference/config-format)

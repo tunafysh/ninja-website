@@ -1,4 +1,448 @@
 ---
-title: The schema of a shuriken
+title: Shuriken Schema
 ---
+
+Complete schema reference for shuriken packages and structure.
+
+## Directory Structure
+
+A shuriken follows this standard structure:
+
+```
+~/.ninja/shurikens/{name}/
+├── .ninja/                  # Ninja metadata directory
+│   ├── manifest.toml        # Required: Shuriken definition
+│   ├── options.toml         # Optional: User configuration
+│   ├── config.tmpl          # Optional: Configuration template
+│   ├── shuriken.lck         # Runtime: Lock file (auto-generated)
+│   ├── manage.ns            # Optional: Management script
+│   └── scripts/             # Optional: Additional scripts
+│       ├── postinstall.ns   # Post-installation script
+│       └── tools/           # Tool scripts
+│           ├── backup.lua
+│           └── migrate.lua
+├── bin/                     # Application binaries
+│   ├── server              # Linux/macOS binary
+│   └── server.exe          # Windows binary
+├── data/                    # Application data
+├── logs/                    # Log files
+├── static/                  # Static resources
+├── config/                  # Configuration files
+└── README.md               # Documentation
+```
+
+## Manifest Schema
+
+Complete `manifest.toml` schema with all options.
+
+```toml
+[shuriken]
+# Required fields
+name = "example-service"              # Display name
+id = "com.example.service"            # Unique identifier
+version = "1.0.0"                     # Semantic version
+type = "daemon"                       # "daemon" or "executable"
+
+# Optional fields
+require-admin = false                 # Elevated privileges
+description = "Service description"   # Long description
+synopsis = "Short description"        # Brief summary
+
+[shuriken.management]
+type = "script"                       # "script" or "native"
+
+# For script management
+script-path = "manage.ns"             # Path to management script
+
+# For native management (deprecated)
+[shuriken.management.bin-path]
+linux = "./bin/server"
+windows = ".\\bin\\server.exe"
+macos = "./bin/server"
+
+args = ["--port", "8080"]             # Command arguments
+
+[shuriken.management.cwd]
+linux = "."
+windows = "."
+macos = "."
+
+# Configuration (optional)
+[config]
+config-path = "server.conf"           # Output path for config
+
+# Logging (optional)
+[logs]
+log-path = "logs/service.log"         # Log file path
+
+# Tools (optional, multiple allowed)
+[[tools]]
+name = "migrate"                      # Tool identifier
+script = "scripts/migrate.lua"        # Script path
+description = "Run migrations"        # Tool description
+
+[[tools]]
+name = "backup"
+script = "scripts/backup.lua"
+description = "Backup data"
+```
+
+## Management Script Schema
+
+Management scripts must implement `start()` and `stop()` functions.
+
+### Required Functions
+
+```lua
+-- Start the service
+function start()
+    -- Startup logic
+end
+
+-- Stop the service
+function stop()
+    -- Shutdown logic
+end
+```
+
+### Complete Example
+
+```lua
+-- manage.ns
+
+function start()
+    log.info("Starting service...")
+    
+    -- Platform-specific logic
+    if env.os == "windows" then
+        local result = proc.spawn("bin\\server.exe")
+        fs.write(".ninja/service.pid", tostring(result.pid))
+    else
+        local result = proc.spawn("bin/server")
+        fs.write(".ninja/service.pid", tostring(result.pid))
+    end
+    
+    -- Wait for startup
+    time.sleep(2)
+    
+    -- Verify process
+    if not fs.exists(".ninja/service.pid") then
+        log.error("Failed to start")
+        return false
+    end
+    
+    log.info("Service started")
+    return true
+end
+
+function stop()
+    log.info("Stopping service...")
+    
+    -- Read PID
+    if not fs.exists(".ninja/service.pid") then
+        log.warn("PID file not found")
+        return true
+    end
+    
+    local pid = fs.read(".ninja/service.pid")
+    
+    -- Kill process
+    if proc.kill_pid(tonumber(pid)) then
+        fs.remove(".ninja/service.pid")
+        log.info("Service stopped")
+        return true
+    else
+        log.error("Failed to stop")
+        return false
+    end
+end
+```
+
+## Options Schema
+
+Options file defines user-configurable values.
+
+### Basic Structure
+
+```toml
+# Server configuration
+host = "localhost"
+port = 8080
+workers = 4
+
+# Feature flags
+debug = false
+enable_ssl = true
+enable_metrics = false
+
+# Database
+db_host = "localhost"
+db_port = 5432
+db_name = "myapp"
+db_user = "postgres"
+db_password = "secret"
+
+# Paths (relative to shuriken root)
+data_dir = "data"
+logs_dir = "logs"
+```
+
+### Nested Configuration
+
+```toml
+[server]
+host = "localhost"
+port = 8080
+workers = 4
+
+[database]
+host = "localhost"
+port = 5432
+name = "myapp"
+
+[ssl]
+enabled = true
+cert = "/etc/ssl/cert.pem"
+key = "/etc/ssl/key.pem"
+
+[logging]
+level = "info"
+format = "json"
+```
+
+### Arrays
+
+```toml
+# Simple arrays
+ports = [8080, 8081, 8082]
+hosts = ["localhost", "127.0.0.1"]
+
+# Array of tables
+[[workers]]
+id = 1
+threads = 4
+
+[[workers]]
+id = 2
+threads = 8
+```
+
+## Package Schema
+
+`.shuriken` binary format specification.
+
+### Binary Layout
+
+```
+Offset   Size         Description
+------   ----------   -----------
+0        6 bytes      Magic bytes: "HSRZEG"
+6        2 bytes      Metadata length (u16 LE)
+8        N bytes      CBOR-encoded metadata
+8+N      4 bytes      Archive length (u32 LE)
+12+N     M bytes      tar.gz compressed archive
+12+N+M   32 bytes     SHA-256 signature
+```
+
+### Metadata Schema (CBOR)
+
+```json
+{
+  "name": "example-service",
+  "id": "com.example.service",
+  "platform": "linux-x86_64",
+  "version": "1.0.0",
+  "synopsis": "Brief description",
+  "description": "Detailed description",
+  "authors": ["Author Name <email@example.com>"],
+  "license": "MIT",
+  "postinstall": "scripts/postinstall.ns"
+}
+```
+
+**Field types:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | String | Yes | Package name |
+| `id` | String | Yes | Unique identifier |
+| `platform` | String | Yes | Target platform |
+| `version` | String | Yes | Version string |
+| `synopsis` | String | No | Short description |
+| `description` | String | No | Long description |
+| `authors` | Array[String] | No | Author list |
+| `license` | String | No | License identifier |
+| `postinstall` | String | No | Post-install script path |
+
+**Platform values:**
+- `linux-x86_64`
+- `linux-aarch64`
+- `windows-x86_64`
+- `macos-x86_64`
+- `macos-aarch64`
+- `any`
+
+## Lock File Schema
+
+Runtime state file (auto-generated).
+
+### Native Management
+
+```json
+{
+  "name": "example-service",
+  "type": "Native",
+  "pid": 12345,
+  "start_time": 1638360000
+}
+```
+
+### Script Management
+
+```json
+{
+  "name": "example-service",
+  "type": "Script"
+}
+```
+
+## Tool Script Schema
+
+Tool scripts are Lua files with full Ninja API access.
+
+### Basic Structure
+
+```lua
+-- scripts/backup.lua
+
+-- Optional: Tool configuration
+local config = {
+    backup_dir = "backups",
+    max_backups = 5
+}
+
+-- Main execution
+function main()
+    log.info("Starting backup...")
+    
+    -- Create backup directory
+    if not fs.exists(config.backup_dir) then
+        fs.create_dir(config.backup_dir)
+    end
+    
+    -- Generate backup filename
+    local timestamp = time.now("%Y%m%d_%H%M%S")
+    local backup_file = config.backup_dir .. "/backup_" .. timestamp .. ".tar.gz"
+    
+    -- Create backup
+    local result = shell.exec("tar -czf " .. backup_file .. " data/")
+    
+    if result.code == 0 then
+        log.info("Backup created: " .. backup_file)
+        
+        -- Cleanup old backups
+        cleanup_old_backups()
+        
+        return true
+    else
+        log.error("Backup failed: " .. result.stderr)
+        return false
+    end
+end
+
+function cleanup_old_backups()
+    local backups = fs.read_dir(config.backup_dir)
+    
+    if #backups > config.max_backups then
+        -- Sort and remove oldest
+        table.sort(backups)
+        for i = 1, #backups - config.max_backups do
+            fs.remove(config.backup_dir .. "/" .. backups[i])
+            log.info("Removed old backup: " .. backups[i])
+        end
+    end
+end
+
+-- Execute main function
+return main()
+```
+
+## Post-Install Script Schema
+
+Post-install scripts run after package installation.
+
+```lua
+-- scripts/postinstall.ns
+
+log.info("Running post-install...")
+
+-- Create required directories
+local dirs = {"data", "logs", "config", "static", "temp"}
+
+for _, dir in ipairs(dirs) do
+    if not fs.exists(dir) then
+        fs.create_dir(dir)
+        log.info("Created directory: " .. dir)
+    end
+end
+
+-- Set permissions on Unix
+if env.os ~= "windows" then
+    -- Make binaries executable
+    local binaries = {"bin/server", "bin/cli"}
+    
+    for _, binary in ipairs(binaries) do
+        if fs.exists(binary) then
+            shell.exec("chmod +x " .. binary)
+            log.info("Made executable: " .. binary)
+        end
+    end
+end
+
+-- Create default configuration
+if not fs.exists(".ninja/options.toml") then
+    local default_config = [[
+host = "localhost"
+port = 8080
+debug = false
+workers = 4
+]]
+    fs.write(".ninja/options.toml", default_config)
+    log.info("Created default options.toml")
+end
+
+-- Download dependencies (example)
+if env.os == "linux" then
+    log.info("Installing system dependencies...")
+    shell.exec("apt-get update && apt-get install -y libssl-dev", true)
+end
+
+log.info("Post-install complete!")
+```
+
+## Validation Rules
+
+### Manifest Validation
+
+- `name`: Non-empty string, no special characters except `-` and `_`
+- `id`: Reverse domain notation (e.g., `com.example.app`)
+- `version`: Semantic versioning format (e.g., `1.0.0`)
+- `type`: Must be `daemon` or `executable`
+- Paths: Use forward slashes, relative paths preferred
+
+### Package Validation
+
+- Magic bytes must be exactly `HSRZEG`
+- Metadata must be valid CBOR
+- Archive must be valid tar.gz
+- Signature must match SHA-256 of archive
+- Platform must be valid identifier
+
+### Options Validation
+
+- Must be valid TOML
+- Variable names: alphanumeric, `-`, `_`
+- No reserved names: `platform`, `root`
+
+See also: [Configuration Format](config-format), [Manifest Examples](../developer-guide/architecture)
 

@@ -1,26 +1,262 @@
 ---
-title: Testing Ninja
+title: Testing
 ---
 
-Testing strategy
+Testing strategy and practices for Ninja development.
 
-- Unit tests: run `cargo test` in Rust crates (core, CLI, API, etc.) to validate logic.
-- Integration tests: exercise the `ShurikenManager` (start/configure/stop) against temporary shuriken directories.
-- Script tests: exercise `.ns` management scripts using the runtime engine API (execute functions and assert side-effects).
+## Test Types
 
-Quick checks
+### Unit Tests
+
+Test individual components and functions:
 
 ```bash
-# run unit tests
+# Run all unit tests
 cargo test --workspace
 
-# build and run the CLI for manual integration checks
-cargo build -p CLI --release
-./target/release/shurikenctl list
+# Run specific crate tests
+cargo test -p core
+cargo test -p CLI
+
+# Run with output
+cargo test -- --nocapture
 ```
 
-Tips
+### Integration Tests
 
-- Use temporary directories for shuriken fixtures to avoid polluting `~/.ninja`.
-- Test both native and script-managed shurikens when possible.
-- Mock or stub external side effects (network, systemctl) in unit tests.
+Test `ShurikenManager` operations with temporary directories:
+
+```rust
+use tempfile::tempdir;
+use ninja::manager::ShurikenManager;
+
+#[tokio::test]
+async fn test_install_start_stop() {
+    let temp = tempdir().unwrap();
+    let manager = ShurikenManager::new(temp.path());
+    
+    // Install shuriken
+    manager.install("test.shuriken").await.unwrap();
+    
+    // Start service
+    manager.start("test-service").await.unwrap();
+    
+    // Verify running
+    let state = manager.get_state("test-service").await.unwrap();
+    assert_eq!(state, State::Running);
+    
+    // Stop service
+    manager.stop("test-service").await.unwrap();
+}
+```
+
+### Script Tests
+
+Test Lua management scripts using the engine API:
+
+```rust
+use ninja::engine::NinjaEngine;
+
+#[test]
+fn test_management_script() {
+    let engine = NinjaEngine::new();
+    let script = r#"
+        function start()
+            log.info("Starting")
+            return true
+        end
+    "#;
+    
+    engine.execute(script).unwrap();
+    let result = engine.call_function("start", vec![]).unwrap();
+    assert!(result);
+}
+```
+
+## Testing Shurikens
+
+### Create Test Fixtures
+
+```
+tests/fixtures/
+└── test-shuriken/
+    ├── .ninja/
+    │   ├── manifest.toml
+    │   ├── options.toml
+    │   ├── config.tmpl
+    │   └── manage.ns
+    └── bin/
+        └── service
+```
+
+### Test Both Management Types
+
+Test native and script-managed shurikens:
+
+```rust
+#[tokio::test]
+async fn test_native_management() {
+    // Test with native binary
+}
+
+#[tokio::test]
+async fn test_script_management() {
+    // Test with Lua scripts
+}
+```
+
+## Manual Testing
+
+### Build and Test CLI
+
+```bash
+# Build release
+cargo build -p CLI --release
+
+# Test commands
+./target/release/shurikenctl --version
+./target/release/shurikenctl list
+./target/release/shurikenctl install test.shuriken
+```
+
+### GUI Testing
+
+```bash
+# Build GUI
+cd GUI
+pnpm install
+pnpm tauri dev
+
+# Or build release
+pnpm tauri build
+```
+
+### API Server Testing
+
+```bash
+# Start server
+cargo run -p HTTP -- --port 8080
+
+# Test endpoints
+curl http://localhost:8080/api/shurikens
+curl -X POST http://localhost:8080/api/shurikens/test/start
+```
+
+## Best Practices
+
+### Use Temporary Directories
+
+Avoid polluting `~/.ninja` during tests:
+
+```rust
+use tempfile::tempdir;
+
+#[test]
+fn my_test() {
+    let temp = tempdir().unwrap();
+    let ninja_dir = temp.path();
+    // Use ninja_dir for test
+}
+```
+
+### Mock External Dependencies
+
+Stub system calls and network requests:
+
+```rust
+// Mock systemctl calls
+#[cfg(test)]
+mod tests {
+    fn mock_systemctl() -> bool {
+        true // Simulate success
+    }
+}
+```
+
+### Test Error Cases
+
+Verify error handling:
+
+```rust
+#[tokio::test]
+async fn test_start_nonexistent() {
+    let result = manager.start("nonexistent").await;
+    assert!(result.is_err());
+}
+
+#[tokio::test]
+async fn test_start_already_running() {
+    manager.start("test").await.unwrap();
+    let result = manager.start("test").await;
+    assert!(matches!(result, Err(NinjaError::AlreadyRunning)));
+}
+```
+
+### Clean Up Resources
+
+Ensure tests clean up processes and files:
+
+```rust
+#[tokio::test]
+async fn test_with_cleanup() {
+    // Setup
+    manager.start("test").await.unwrap();
+    
+    // Test
+    // ...
+    
+    // Cleanup
+    manager.stop("test").await.ok();
+}
+```
+
+## Continuous Integration
+
+### GitHub Actions
+
+```yaml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cargo test --workspace
+      - run: cargo build --release
+```
+
+## Coverage
+
+Generate coverage reports:
+
+```bash
+# Install tarpaulin
+cargo install cargo-tarpaulin
+
+# Generate coverage
+cargo tarpaulin --workspace --out Html
+
+# View report
+open tarpaulin-report.html
+```
+
+## Performance Testing
+
+Benchmark critical operations:
+
+```rust
+#[bench]
+fn bench_start_stop(b: &mut Bencher) {
+    b.iter(|| {
+        manager.start("test").await.unwrap();
+        manager.stop("test").await.unwrap();
+    });
+}
+```
+
+See also: [Contributing](contribution), [Architecture](architecture)

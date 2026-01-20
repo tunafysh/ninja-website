@@ -1,23 +1,482 @@
 ---
-title: Syntax of the DSL
+title: DSL Syntax
 ---
 
-The Ninja DSL is a lightweight, shellscript-like command language used to perform quick operations and automation inside the runtime.
+Complete reference for Ninja's Domain-Specific Language (DSL).
 
-Common DSL constructs
+## Overview
 
-- `start <shuriken>` — start a shuriken
-- `stop <shuriken>` — stop a shuriken
-- `configure <shuriken>` — render configuration
-- `http start <port>` — start the local HTTP API on a given port
-- `execute <script>` — execute a DSL snippet or file
+The Ninja DSL is a shell-like command language for service management and automation.
 
-Examples
+## Command Structure
 
-```
-start example-service
-configure example-service
-http start 8080
+```bash
+<command> [arguments] [options]
 ```
 
-The GUI and link parser accept `shurikenctl://` style links that map into DSL commands (for example `shurikenctl://start?shuriken=example-service`), allowing quick integrations from external apps.
+## Core Commands
+
+### Shuriken Management
+
+#### list
+
+List installed shurikens.
+
+```bash
+# Basic list
+list
+
+# With state information
+list state
+```
+
+**Output:**
+```
+example-service    (Running)
+webserver          (Idle)
+```
+
+#### select
+
+Select a shuriken for subsequent operations.
+
+```bash
+select <name>
+
+# Example
+select webserver
+```
+
+#### exit
+
+Deselect the current shuriken.
+
+```bash
+exit
+```
+
+#### start
+
+Start a shuriken.
+
+```bash
+# With selection
+select myapp
+start
+
+# Direct
+start myapp
+```
+
+#### stop
+
+Stop a shuriken.
+
+```bash
+# With selection
+select myapp
+stop
+
+# Direct
+stop myapp
+```
+
+#### install
+
+Install a shuriken package.
+
+```bash
+install <path>
+
+# Example
+install ./service.shuriken
+install ~/Downloads/com.example.app.shuriken
+```
+
+#### remove
+
+Remove an installed shuriken.
+
+```bash
+remove <name>
+
+# Example
+remove myapp
+```
+
+### Configuration
+
+#### configure
+
+Generate configuration from template.
+
+```bash
+# Basic configuration
+configure
+
+# With inline options
+configure {
+  port = 8080
+  host = "localhost"
+  debug = true
+}
+
+# Multi-line block
+configure {
+  option1 = value1;
+  option2 = value2;
+  option3 = value3
+}
+```
+
+#### set
+
+Set a configuration option.
+
+```bash
+set <key> <value>
+
+# Examples
+set port 8080
+set host "localhost"
+set debug true
+```
+
+#### get
+
+Get a configuration option value.
+
+```bash
+get <key>
+
+# Example
+get port
+```
+
+#### toggle
+
+Toggle a boolean option.
+
+```bash
+toggle <key>
+
+# Example
+toggle debug
+```
+
+### Script Execution
+
+#### execute
+
+Execute a Ninja script file.
+
+```bash
+execute <path>
+
+# Examples
+execute ./setup.ns
+execute scripts/deploy.lua
+```
+
+#### run-tool
+
+Run a shuriken-defined tool.
+
+```bash
+run-tool <tool-name>
+
+# Example
+run-tool migrate
+run-tool backup
+```
+
+### HTTP Server
+
+#### http
+
+Start the HTTP API server.
+
+```bash
+http <port>
+
+# Example
+http 8080
+```
+
+### Help
+
+#### help
+
+Display help information.
+
+```bash
+help
+```
+
+## Value Types
+
+The DSL automatically detects value types:
+
+### Strings
+
+```bash
+# With quotes (preserves spaces)
+set message "Hello World"
+set path 'C:\Program Files\App'
+
+# Without quotes (single word)
+set name value
+```
+
+### Numbers
+
+```bash
+# Integers
+set port 8080
+set timeout 30
+
+# Floats
+set ratio 0.75
+set delay 2.5
+```
+
+### Booleans
+
+```bash
+set enabled true
+set debug false
+```
+
+## Comments
+
+Both comment styles are supported:
+
+```bash
+# Hash-style comment
+// Slash-style comment
+
+configure {
+  port = 8080  # Inline comment
+  debug = true // Also inline
+}
+```
+
+## Configuration Blocks
+
+Use blocks for multiple options:
+
+```bash
+configure {
+  # Server settings
+  port = 8080
+  host = "0.0.0.0"
+  workers = 4
+  
+  # Features
+  debug = true
+  ssl = false
+}
+```
+
+**Semicolon separator (optional):**
+
+```bash
+configure {
+  port = 8080;
+  host = "localhost";
+  debug = true
+}
+```
+
+## Command Chaining
+
+Execute multiple commands:
+
+```bash
+select webserver
+configure { port = 9000 }
+start
+list state
+```
+
+## Deep Links
+
+GUI supports `shurikenctl://` URLs:
+
+```
+shurikenctl://start?shuriken=myapp
+shurikenctl://stop?shuriken=myapp
+shurikenctl://configure?shuriken=myapp&port=8080
+```
+
+## Interactive Mode (REPL)
+
+Start interactive mode:
+
+```bash
+shurikenctl
+```
+
+**Prompt:**
+
+```
+ninja> list
+example-service    (Running)
+
+ninja> select example-service
+Selected: example-service
+
+ninja> stop
+Service stopped
+
+ninja> exit
+```
+
+## Script Files
+
+Create DSL script files (`.dsl` extension recommended):
+
+**deploy.dsl:**
+
+```bash
+# Install application
+install ./myapp.shuriken
+
+# Configure
+select myapp
+configure {
+  port = 8080
+  host = "0.0.0.0"
+  workers = 4
+}
+
+# Start service
+start
+
+# Verify
+list state
+```
+
+**Execute:**
+
+```bash
+shurikenctl run deploy.dsl
+```
+
+## Error Handling
+
+DSL commands return success/error status:
+
+```bash
+# Success
+start myapp
+# → "Service started successfully"
+
+# Error
+start nonexistent
+# → Error: Service not found
+
+start myapp
+# → Error: Service already running
+```
+
+## Variables (Not Supported)
+
+The DSL does not support variables or loops. For complex logic, use Lua scripts:
+
+**setup.ns:**
+
+```lua
+-- Lua script with full Ninja API
+local services = {"web1", "web2", "web3"}
+
+for _, service in ipairs(services) do
+  log.info("Starting " .. service)
+  -- Use Ninja API here
+end
+```
+
+## Best Practices
+
+1. **Use select for multiple operations** - Avoid repeating shuriken names
+2. **Group configuration** - Use blocks for related options
+3. **Add comments** - Document complex scripts
+4. **Error check** - Verify command success before proceeding
+5. **Keep it simple** - Use Lua for complex logic
+
+## Examples
+
+### Quick Start
+
+```bash
+install ./myapp.shuriken
+select myapp
+configure
+start
+```
+
+### Configuration Update
+
+```bash
+select webserver
+set port 9000
+set workers 8
+configure
+restart
+```
+
+### Multi-Service Management
+
+```bash
+start web1
+start web2
+start database
+list state
+```
+
+### Development Workflow
+
+```bash
+# Configure and test existing shuriken
+select myapp
+configure { port = 3000 }
+start
+
+# Make changes
+stop
+# (edit files)
+start
+
+# List status
+list state
+```
+
+## Integration
+
+### With CLI
+
+```bash
+# Direct command
+shurikenctl "start myapp"
+
+# Script file
+shurikenctl run script.dsl
+```
+
+### With GUI
+
+The GUI executes DSL commands internally:
+
+- Start button → `start <name>`
+- Configure dialog → `configure { ... }`
+- Install button → `install <path>`
+
+### With HTTP API
+
+```bash
+curl -X POST http://localhost:8080/api/dsl/execute \
+  -H "Content-Type: application/json" \
+  -d '{"command": "start myapp"}'
+```
+
+See also: [CLI Reference](cli), [Developer DSL Guide](../developer-guide/dsl)

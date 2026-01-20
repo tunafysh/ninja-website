@@ -1,25 +1,211 @@
 ---
-title: The config templater
+title: Configuration Templates
 ---
 
-Ninja uses the Tera templating engine to render configuration files from `.ninja/config.tmpl` and user-provided values in `.ninja/options.toml`.
+Ninja uses [Tera](https://keats.github.io/tera/) templates to generate service configuration files.
 
-How it works
+## Template System
 
-1. Load `options.toml` from the shuriken directory (user-editable)
-2. Inject default values such as `platform` and `root` (absolute shuriken path)
-3. Render `config.tmpl` using Tera and write output to the path specified in `manifest.toml`
+### Files Involved
 
-Template tips
+1. `.ninja/options.toml` - User-editable values
+2. `.ninja/config.tmpl` - Tera template
+3. Output file - Path from `manifest.toml`
 
-- Use `{{ root }}` to build portable paths relative to the shuriken.
-- Provide sensible defaults in `options.toml` to avoid undefined variables.
-- Keep logic in templates minimal; complex generation belongs in management scripts.
+### Workflow
 
-Example snippet
+```bash
+# 1. Edit options
+nano ~/.ninja/shurikens/{name}/.ninja/options.toml
+
+# 2. Generate configuration
+shurikenctl configure {name}
+
+# 3. Configuration written to specified path
+```
+
+## Template Syntax
+
+### Basic Variables
+
+```ini
+[server]
+host = {{ host }}
+port = {{ port }}
+debug = {{ debug }}
+```
+
+### Defaults
 
 ```ini
 [server]
 host = {{ host | default(value="127.0.0.1") }}
 port = {{ port | default(value=8080) }}
 ```
+
+### Conditionals
+
+```ini
+{% if enable_ssl %}
+[ssl]
+cert = {{ ssl_cert }}
+key = {{ ssl_key }}
+{% endif %}
+```
+
+### Loops
+
+```toml
+{% for worker in workers %}
+[[workers]]
+id = {{ worker.id }}
+threads = {{ worker.threads }}
+{% endfor %}
+```
+
+## Injected Variables
+
+Ninja automatically provides:
+
+- `{{ platform }}` - Current OS: `linux`, `windows`, or `macos`
+- `{{ root }}` - Absolute path to shuriken directory
+
+### Example Usage
+
+```ini
+[paths]
+data = {{ root }}/data
+logs = {{ root }}/logs
+config = {{ root }}/config
+
+[system]
+platform = {{ platform }}
+```
+
+## Options File Format
+
+`.ninja/options.toml`:
+
+```toml
+# Server settings
+host = "localhost"
+port = 8080
+debug = false
+
+# SSL settings
+enable_ssl = true
+ssl_cert = "/etc/ssl/cert.pem"
+ssl_key = "/etc/ssl/key.pem"
+
+# Workers
+[[workers]]
+id = 1
+threads = 4
+
+[[workers]]
+id = 2
+threads = 4
+```
+
+## Complete Example
+
+### Template (`.ninja/config.tmpl`)
+
+```ini
+[server]
+bind = {{ bind_address | default(value="0.0.0.0") }}:{{ port }}
+workers = {{ worker_count | default(value=4) }}
+log_level = {{ log_level | default(value="info") }}
+
+[paths]
+static = {{ root }}/static
+data = {{ root }}/data
+logs = {{ root }}/logs
+
+{% if enable_tls %}
+[tls]
+cert = {{ tls_cert }}
+key = {{ tls_key }}
+{% endif %}
+
+[system]
+platform = {{ platform }}
+```
+
+### Options (`.ninja/options.toml`)
+
+```toml
+bind_address = "127.0.0.1"
+port = 8080
+worker_count = 8
+log_level = "debug"
+
+enable_tls = true
+tls_cert = "/etc/ssl/cert.pem"
+tls_key = "/etc/ssl/key.pem"
+```
+
+### Generated Output
+
+```ini
+[server]
+bind = 127.0.0.1:8080
+workers = 8
+log_level = debug
+
+[paths]
+static = /home/user/.ninja/shurikens/myapp/static
+data = /home/user/.ninja/shurikens/myapp/data
+logs = /home/user/.ninja/shurikens/myapp/logs
+
+[tls]
+cert = /etc/ssl/cert.pem
+key = /etc/ssl/key.pem
+
+[system]
+platform = linux
+```
+
+## Manifest Configuration
+
+Specify template and output in `manifest.toml`:
+
+```toml
+[config]
+config-path = "server.conf"
+```
+
+Template is always `.ninja/config.tmpl`.
+
+## Best Practices
+
+1. **Provide defaults** - Use `| default(value=...)` for optional values
+2. **Use `{{ root }}`** - Makes paths portable across installations
+3. **Keep logic simple** - Complex generation belongs in management scripts
+4. **Document options** - Add comments in `options.toml` template
+5. **Test templates** - Run `configure` to verify output
+
+## Debugging
+
+**Check template syntax:**
+
+```bash
+# Template is at
+~/.ninja/shurikens/{name}/.ninja/config.tmpl
+```
+
+**Verify options:**
+
+```bash
+# Options file
+~/.ninja/shurikens/{name}/.ninja/options.toml
+```
+
+**Review output:**
+
+```bash
+# Generated config location from manifest
+cat ~/.ninja/shurikens/{name}/{config-path}
+```
+
+See also: [Configuration Guide](../getting-started/configuration), [Tera Documentation](https://keats.github.io/tera/)

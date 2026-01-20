@@ -2,11 +2,126 @@
 title: Architecture
 ---
 
-High-level architecture
+Understanding Ninja's core components and design.
 
-- The **Armory** stores and publishes `.shuriken` packages.
-- The **Ninja runtime** executes management logic: installs, configures, starts and stops shurikens.
-- **Shurikens** are self-contained bundles with `.ninja/manifest.toml`, templates and scripts.
-- **DSL / scripting engine** runs shuriken scripts for custom management logic.
+## System Components
 
-See the project's source code (manager, shuriken, CLI, etc.) for implementation examples and query logic.
+### ShurikenManager
+
+The central component responsible for:
+
+- Installing and removing shurikens
+- Starting and stopping services
+- Managing configuration and state
+- Tracking processes and lock files
+
+### Ninja Engine
+
+Lua scripting engine providing:
+
+- Filesystem APIs (`fs`)
+- Process management (`proc`)
+- Shell execution (`shell`)
+- Environment access (`env`)
+- Logging (`log`)
+
+Used for:
+- Management scripts (`start()`, `stop()` functions)
+- Post-install scripts
+- Custom tools
+- DSL command processing
+
+### Armory
+
+Package repository storing `.shuriken` files with:
+
+- CBOR-encoded metadata
+- Tar.gz archived files
+- SHA-256 signatures
+
+## Directory Structure
+
+```
+~/.ninja/
+├── shurikens/           # Installed services
+│   └── {name}/
+│       ├── .ninja/      # Ninja metadata
+│       │   ├── manifest.toml
+│       │   ├── options.toml
+│       │   ├── config.tmpl
+│       │   ├── shuriken.lck
+│       │   └── *.ns     # Management scripts
+│       └── [service files]
+├── projects/            # Application data
+└── blacksmith/          # Built packages
+```
+
+## Package Format
+
+`.shuriken` binary structure:
+
+```
+[MAGIC]            6 bytes  - "HSRZEG"
+[metadata_length]  2 bytes  - u16 LE
+[metadata]         N bytes  - CBOR
+[archive_length]   4 bytes  - u32 LE
+[archive]          N bytes  - tar.gz
+[signature]        32 bytes - SHA-256
+```
+
+## Management Types
+
+### Native Management (Deprecated)
+
+Spawns a binary as a child process:
+
+- Tracks PID and start time
+- Creates lock file with process info
+- Verifies PID + start time before termination
+
+### Script Management (Recommended)
+
+Executes Lua scripts with `start()` and `stop()` functions:
+
+- Full control over lifecycle
+- Access to Ninja APIs
+- Platform-specific logic
+- Custom health checks
+
+## State Management
+
+**Shuriken states:**
+- `Idle` - Not running
+- `Running` - Active service
+
+**Lock file** (`.ninja/shuriken.lck`):
+
+```json
+{
+  "name": "service-name",
+  "type": "Native" | "Script",
+  "pid": 12345,          // Native only
+  "start_time": 1638360000  // Native only
+}
+```
+
+## Configuration System
+
+**Template rendering flow:**
+
+1. Load `options.toml` (user values)
+2. Inject `{{ platform }}` and `{{ root }}`
+3. Render `config.tmpl` with Tera
+4. Write to path from `manifest.toml`
+
+See [Templater](templater) for details.
+
+## APIs and Interfaces
+
+- **CLI** - `shurikenctl` command-line tool
+- **GUI** - Tauri desktop application
+- **HTTP API** - REST endpoints for service management
+- **DSL** - Interactive command language
+- **MCP** - Tool integration for automation
+
+See also: [API Reference](../reference/api-reference), [DSL Syntax](dsl)

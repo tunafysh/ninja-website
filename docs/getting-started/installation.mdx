@@ -2,18 +2,29 @@
 title: Installation
 ---
 
-Installation options
+## Installation Options
 
-1) Prebuilt binary
+### 1. Prebuilt Binary (Recommended)
 
-- Download the appropriate release for your platform from the project releases page and unpack it.
--- Move the `shurikenctl` binary to a directory on your `PATH` (for example `/usr/local/bin`).
+**Download from [GitHub releases](https://github.com/tunafysh/ninja/releases) for stability.** This is the recommended method and may be the only time you need to manually download—Ninja can update itself.
 
-2) Package manager (where available)
+```bash
+# Extract and move to PATH
+tar -xzf shurikenctl-*.tar.gz
+sudo mv shurikenctl /usr/local/bin/
+```
 
-- On platforms that provide packages, prefer the native package for easier upgrades and service integration.
+**Note:** Ninja includes self-update functionality, so future updates can be managed through the application itself.
 
-3) Build from source
+### 2. Package Manager
+
+Use your platform's package manager where available (check [releases](https://github.com/tunafysh/ninja/releases) for platform-specific packages).
+
+### 3. Build from Source
+
+For development or testing the latest changes. For production use, prefer prebuilt releases.
+
+Requires [Rust](https://rustup.rs/) toolchain:
 
 ```bash
 git clone https://github.com/tunafysh/ninja.git
@@ -22,21 +33,14 @@ cargo build --release
 sudo cp target/release/shurikenctl /usr/local/bin/
 ```
 
-After installation, check basic health:
+## Verify Installation
 
 ```bash
 shurikenctl --version
 shurikenctl help
 ```
 
-Publishing releases (recommended)
+## Next Steps
 
-If you distribute prebuilt artifacts, publish them via the project's GitHub **Releases** page and follow these best practices:
-
-- Attach platform-specific artifacts (AppImage, installers, tarballs) and their corresponding signature/checksum files (e.g. `.sig`, `.sha256`).
-- Add short release notes or a changelog summarizing user-facing changes.
-- Clearly label platforms and versions so users can pick the correct artifact.
-
-This makes it easy for users to verify artifacts and keeps installation links and documentation accurate.
-
-If you rely on system-level service management for long-running operation, create a systemd unit or equivalent to manage the `shurikenctl` process.
+- Follow the [Quickstart Guide](quickstart) to install your first shuriken
+- Learn about [Configuration](configuration) options

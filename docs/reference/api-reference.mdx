@@ -2,26 +2,391 @@
 title: API Reference
 ---
 
-Ninja provides both an HTTP REST surface and a GraphQL API for controlling shurikens programmatically.
+HTTP and GraphQL API reference for Ninja service management.
 
-HTTP endpoints (examples)
+## HTTP REST API
 
-- `GET /shurikens` — list shuriken names
-- `GET /shurikens/states` — map of shuriken → state (running | idle)
-- `POST /shurikens/:name/start` — start the named shuriken
-- `POST /shurikens/:name/stop` — stop the named shuriken
-- `POST /shurikens/:name/configure` — render and write the shuriken config
-
-Example (start):
+### Starting the API Server
 
 ```bash
-curl -X POST http://localhost:8080/shurikens/example-service/start
+# Via CLI
+shurikenctl api --port 8080
+
+# Via code
+cargo run -p HTTP -- --port 8080
 ```
 
-GraphQL
+## Endpoints
 
-The GraphQL API exposes mutations such as `startShuriken(name: String)` and `stopShuriken(name: String)`, as well as queries to list shurikens and states. Use this from clients that prefer a single endpoint and strongly-typed schema.
+### GET /api/shurikens
 
-Running the API
+List all installed shurikens.
 
-Start the HTTP server locally via the CLI: `shurikenctl api --port 8080` and then call the endpoints shown above.
+**Response:**
+```json
+{
+  "shurikens": [
+    "example-service",
+    "webserver",
+    "database"
+  ]
+}
+```
+
+### GET /api/shurikens/states
+
+Get state information for all shurikens.
+
+**Response:**
+```json
+{
+  "example-service": "Running",
+  "webserver": "Idle",
+  "database": "Running"
+}
+```
+
+### GET /api/shurikens/:name
+
+Get detailed information about a shuriken.
+
+**Response:**
+```json
+{
+  "name": "example-service",
+  "state": "Running",
+  "manifest": {
+    "name": "example-service",
+    "id": "com.example.service",
+    "version": "1.0.0",
+    "type": "daemon"
+  }
+}
+```
+
+### POST /api/shurikens/:name/start
+
+Start a shuriken.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/shurikens/example-service/start
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Service started successfully"
+}
+```
+
+### POST /api/shurikens/:name/stop
+
+Stop a shuriken.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/shurikens/example-service/stop
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Service stopped successfully"
+}
+```
+
+### POST /api/shurikens/:name/restart
+
+Restart a shuriken.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/shurikens/example-service/restart
+```
+
+### POST /api/shurikens/:name/configure
+
+Generate configuration for a shuriken.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/shurikens/example-service/configure \
+  -H "Content-Type: application/json" \
+  -d '{
+    "options": {
+      "port": 8080,
+      "host": "localhost"
+    }
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Configuration generated"
+}
+```
+
+### POST /api/install
+
+Install a shuriken package.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/install \
+  -F "file=@/path/to/package.shuriken"
+```
+
+### POST /api/remove/:name
+
+Remove a shuriken.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/remove/example-service
+```
+
+### POST /api/dsl/execute
+
+Execute DSL commands.
+
+**Request:**
+```bash
+curl -X POST http://localhost:8080/api/dsl/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "command": "start example-service"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "output": "Service started successfully"
+}
+```
+
+## GraphQL API
+
+Access GraphQL at `/graphql`.
+
+### Schema
+
+```graphql
+type Query {
+  shurikens: [String!]!
+  shuriken(name: String!): Shuriken
+  states: StateMap!
+}
+
+type Mutation {
+  startShuriken(name: String!): OperationResult!
+  stopShuriken(name: String!): OperationResult!
+  restartShuriken(name: String!): OperationResult!
+  configureShuriken(name: String!, options: JSON): OperationResult!
+  installShuriken(path: String!): OperationResult!
+  removeShuriken(name: String!): OperationResult!
+}
+
+type Shuriken {
+  name: String!
+  state: State!
+  manifest: Manifest!
+}
+
+type Manifest {
+  name: String!
+  id: String!
+  version: String!
+  type: String!
+}
+
+enum State {
+  RUNNING
+  IDLE
+}
+
+type OperationResult {
+  success: Boolean!
+  message: String
+  error: String
+}
+
+scalar JSON
+scalar StateMap
+```
+
+### Example Queries
+
+**List shurikens:**
+```graphql
+query {
+  shurikens
+}
+```
+
+**Get shuriken info:**
+```graphql
+query {
+  shuriken(name: "example-service") {
+    name
+    state
+    manifest {
+      version
+      type
+    }
+  }
+}
+```
+
+**Get all states:**
+```graphql
+query {
+  states
+}
+```
+
+### Example Mutations
+
+**Start shuriken:**
+```graphql
+mutation {
+  startShuriken(name: "example-service") {
+    success
+    message
+  }
+}
+```
+
+**Configure shuriken:**
+```graphql
+mutation {
+  configureShuriken(
+    name: "webserver"
+    options: {
+      port: 8080
+      host: "localhost"
+    }
+  ) {
+    success
+    message
+  }
+}
+```
+
+## Error Responses
+
+### 404 Not Found
+
+```json
+{
+  "success": false,
+  "error": "Shuriken not found"
+}
+```
+
+### 409 Conflict
+
+```json
+{
+  "success": false,
+  "error": "Service already running"
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "success": false,
+  "error": "Internal server error: details"
+}
+```
+
+## Authentication
+
+Currently, the API does not require authentication. For production use, implement authentication middleware.
+
+## CORS
+
+CORS is enabled for all origins in development. Configure appropriately for production.
+
+## Rate Limiting
+
+No rate limiting is currently implemented. Consider adding rate limiting for production deployments.
+
+## WebSocket Support
+
+Real-time updates via WebSocket at `/ws`:
+
+```javascript
+const ws = new WebSocket('ws://localhost:8080/ws');
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  console.log('State update:', update);
+};
+```
+
+**Update format:**
+```json
+{
+  "type": "state_change",
+  "shuriken": "example-service",
+  "old_state": "Idle",
+  "new_state": "Running"
+}
+```
+
+## Client Libraries
+
+### JavaScript/TypeScript
+
+```typescript
+class NinjaClient {
+  constructor(private baseUrl: string) {}
+
+  async list(): Promise<string[]> {
+    const res = await fetch(`${this.baseUrl}/api/shurikens`);
+    return res.json();
+  }
+
+  async start(name: string): Promise<void> {
+    await fetch(`${this.baseUrl}/api/shurikens/${name}/start`, {
+      method: 'POST'
+    });
+  }
+
+  async stop(name: string): Promise<void> {
+    await fetch(`${this.baseUrl}/api/shurikens/${name}/stop`, {
+      method: 'POST'
+    });
+  }
+}
+```
+
+### Python
+
+```python
+import requests
+
+class NinjaClient:
+    def __init__(self, base_url):
+        self.base_url = base_url
+    
+    def list(self):
+        return requests.get(f"{self.base_url}/api/shurikens").json()
+    
+    def start(self, name):
+        return requests.post(f"{self.base_url}/api/shurikens/{name}/start")
+    
+    def stop(self, name):
+        return requests.post(f"{self.base_url}/api/shurikens/{name}/stop")
+```
+
+See also: [CLI Reference](cli), [Developer API Guide](../developer-guide/api)
