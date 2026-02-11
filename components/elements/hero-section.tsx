@@ -1,59 +1,31 @@
-"use client"
-import { motion } from "motion/react"
-import { useEffect, useState } from "react";
+import { BackgroundRippleEffect } from "../ui/background-ripple-effect";
+import { CornerBrackets } from "../ui/corner-brackets";
 import Distributor from "./distributor";
-import Example1 from "./example1";
 
-/**
- * Renders the hero section with layered animated backgrounds, a frosted overlay, and centered hero content.
- *
- * The component tracks the cursor to animate an accent blob that follows the pointer and composes the headline,
- * descriptive paragraph, and the Distributor component inside a responsive two-column layout.
- *
- * @returns The JSX element for the hero section
- */
 export default function HeroSection() {
-    const [mousePos, setMousePos] = useState([0, 0]);
-    useEffect(() => {
-        const handleMouseMove = (event: MouseEvent) => {
-            let x = event.clientX - 32;
-            let y = event.clientY - 32;
-
-            setMousePos([x, y]);
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-
-        return () => {
-            window.removeEventListener(
-                'mousemove',
-                handleMouseMove
-            );
-        };
-    }, []);
-    return (
-        <div className="relative w-full h-[90%] rounded-3xl overflow-hidden bg-[#4e4e4e20] ">
-        
-          {/* blobs behind */}
-          <motion.div className="absolute aspect-square bg-secondary rounded-full left-0 bottom-0" initial={{width: "0px"}} animate={{ width: "20%"}} transition={{duration: 0.7}} />
-          <motion.div className="absolute aspect-square bg-primary rounded-full right-0 top-0" initial={{width: "0px"}} animate={{ width: "15%"}} transition={{duration: 0.7}} />
-          <motion.div className="absolute portrait:hidden w-32 aspect-square rounded-full bg-accent -translate-16 -translate-y-25" animate={{ x: mousePos[0], y: mousePos[1] }} />    
-        
-          {/* the frosted overlay */}
-          <div id="blur" className="absolute inset-0 backdrop-blur-[125px] bg-black/20 grain" />
-        
-          {/* your hero content */}
-          <div className="relative z-20 w-full h-full ">
-            <div className="flex flex-col justify-center items-center h-full w-full text-center">
-                <div className="landscape:h-full landscape:w-1/2 portrait:h-1/2 portrait:w-full flex flex-col items-center justify-center landscape:pl-16 gap-4">
-                    <h1 className="text-5xl font-bold font-">Your Stack, <span className="text-accent">Streamlined</span></h1>
-                    <p className="w-4/5 font-semibold">{"Instead of starting your necessary software manually, let Ninja handle it so you can focus on what's important."}</p>
-                </div>
-                <div className="landscape:h-full landscape:w-1/2 portrait:h-1/2 portrait:w-full flex flex-col items-center landscape:pl-16 gap-4 z-20 p-4">
-                    <Distributor />
-                </div>
-            </div>
-          </div>
+  return (
+    <div className="relative w-full min-h-[75vh] sm:min-h-[82vh] md:min-h-[88vh] lg:min-h-[92vh] xl:min-h-[95vh] overflow-hidden">
+      <div className="hidden md:block" aria-hidden="true">
+        <BackgroundRippleEffect />
+      </div>
+      <div className="relative flex h-full w-full flex-col items-center justify-center gap-6 sm:gap-8 border border-foreground/20 px-6 py-14 sm:px-10 sm:py-20 md:px-16">
+        <CornerBrackets variant="diagonal" />
+        <div className="z-10 flex flex-col gap-3 sm:gap-4 items-center text-center justify-center">
+          <h1 className="select-none font-semibold leading-tight tracking-wide text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl">
+            <span className="font-stan">Your stack</span>,
+          </h1>
+          <h1 className="peer select-none font-ulys font-bold bg-foreground rounded-md text-background px-2 py-1 text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl md:hover:tracking-[0.07em] transition-all">
+            Streamlined
+          </h1>
         </div>
-    )
+        <p className="relative z-10 text-center text-base sm:text-lg md:text-xl font-semibold max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
+          <span className="bg-clip-text bg-linear-to-br from-fuchsia-500 from-40% to-red-500 text-transparent">Fast</span>.
+          <span className="ml-1 bg-clip-text bg-linear-to-br from-lime-500 from-60% to-green-900 text-transparent">Efficient</span>.
+          Built with <span className="bg-clip-text bg-linear-to-br from-yellow-500 from-40% to-red-500 text-transparent">Rust</span>.
+          Scriptable with <span className="bg-clip-text bg-linear-to-br from-indigo-600 from-60% to-violet-900 text-transparent">Lua</span>.
+        </p>
+        <Distributor />
+      </div>
+    </div>
+  )
 }

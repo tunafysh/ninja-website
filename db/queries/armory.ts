@@ -15,12 +15,12 @@ export async function createShuriken(data: InsertShuriken) {
  * Fetch records from the armory table that match the given shuriken id.
  *
  * @param id - The shuriken id to query
- * @returns An array of matching shuriken records containing: `id`, `last_modified`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`
+ * @returns An array of matching shuriken records containing: `id`, `created_at`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`
  */
 export async function getShurikenByID(id: SelectShuriken['id']): Promise<
     Array<{
         id: string;
-        last_modified: Date | null;
+        created_at: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -41,12 +41,12 @@ export async function getShurikenByID(id: SelectShuriken['id']): Promise<
  * Retrieve shuriken records that match the given name.
  *
  * @param name - The shuriken's name to match against the armory table
- * @returns An array of records with fields: `id`, `last_modified`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`
+ * @returns An array of records with fields: `id`, `created_at`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`
  */
 export async function getShurikenByName(name: SelectShuriken['name']): Promise<
     Array<{
         id: string;
-        last_modified: Date | null;
+        created_at: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -67,12 +67,12 @@ export async function getShurikenByName(name: SelectShuriken['name']): Promise<
  * Fetches armory records that have the specified label.
  *
  * @param label - The label value to match in the armory table.
- * @returns An array of shuriken records matching `label`. Each record contains `id`, `last_modified`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`.
+ * @returns An array of shuriken records matching `label`. Each record contains `id`, `created_at`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`.
  */
 export async function getShurikenByLabel(label: SelectShuriken['label']): Promise<
     Array<{
         id: string;
-        last_modified: Date | null;
+        created_at: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -93,12 +93,12 @@ export async function getShurikenByLabel(label: SelectShuriken['label']): Promis
  * Fetches armory records that match the given platforms value.
  *
  * @param platforms - The platforms value to match against the `armoryTable.platforms` column.
- * @returns An array of armory records matching `platforms`. Each record contains: `id`, `last_modified`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`.
+ * @returns An array of armory records matching `platforms`. Each record contains: `id`, `created_at`, `name`, `label`, `synopsis`, `description`, `version`, `authors`, `license`, `repository`, `platforms`, and `checksum`.
  */
 export async function getShurikenByPlatform(platforms: SelectShuriken['platforms']): Promise<
     Array<{
         id: string;
-        last_modified: Date | null;
+        created_at: Date | null;
         name: string;
         label: string;
         synopsis: string;
@@ -113,6 +113,28 @@ export async function getShurikenByPlatform(platforms: SelectShuriken['platforms
 >
 {
     return db.select().from(armoryTable).where(eq(armoryTable.platforms, platforms));
+}
+
+/**
+ * Fetch all shuriken records from the armory table.
+ */
+export async function getAllShurikens(): Promise<
+    Array<{
+        id: string;
+        created_at: Date | null;
+        name: string;
+        label: string;
+        synopsis: string;
+        description: string;
+        version: string;
+        authors: string;
+        license: string;
+        repository: string;
+        platforms: string;
+        checksum: string;
+    }>
+> {
+    return db.select().from(armoryTable);
 }
 
 /**

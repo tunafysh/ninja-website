@@ -14,7 +14,11 @@ tar -xzf shurikenctl-*.tar.gz
 sudo mv shurikenctl /usr/local/bin/
 ```
 
-**Note:** Ninja includes self-update functionality, so future updates can be managed through the application itself.
+:::note
+
+Ninja includes self-update functionality, so future updates can be managed through the application itself.
+
+:::
 
 ### 2. Package Manager
 
@@ -24,12 +28,17 @@ Use your platform's package manager where available (check [releases](https://gi
 
 For development or testing the latest changes. For production use, prefer prebuilt releases.
 
-Requires [Rust](https://rustup.rs/) toolchain:
+Requirements:
+* [Python](https://www.python.org) or [uv](https://www.astral.sh/uv)
+* [Nodejs](https://www.nodejs.org) (preferrably with pnpm)
+* [Rust](https://www.rustup.rs) v1.93.0 or higher
+
+**Building**:
 
 ```bash
 git clone https://github.com/tunafysh/ninja.git
 cd ninja
-cargo build --release
+uv run build.py # or python build.py but i usually prefer uv
 sudo cp target/release/shurikenctl /usr/local/bin/
 ```
 

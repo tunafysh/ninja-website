@@ -4,6 +4,13 @@ import { ThemeProvider } from "next-themes"
 import "./globals.css";
 import { RootProvider } from "fumadocs-ui/provider/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import AuthProvider from "@/components/auth-provider"
+import localFont from 'next/font/local'
+
+const LynoJean = localFont({ src: 'fonts/Lyno-Jean.otf', variable: '--font-jean' })
+const LynoStan = localFont({ src: 'fonts/Lyno-Stan.otf', variable: '--font-stan' })
+const LynoUlys = localFont({ src: 'fonts/Lyno-Ulys.otf', variable: '--font-ulys' })
+const LynoWalt = localFont({ src: 'fonts/Lyno-Walt.otf', variable: '--font-walt' })
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +35,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen`}
+        className={`
+          ${geistSans.variable}
+          ${geistMono.variable} 
+          ${LynoJean.variable} 
+          ${LynoUlys.variable} 
+          ${LynoWalt.variable} 
+          ${LynoStan.variable} 
+            antialiased h-full`}
       >
         <SpeedInsights />
         <ThemeProvider
@@ -38,9 +52,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RootProvider>
-            {children}
-          </RootProvider>
+          <AuthProvider>
+            <RootProvider>
+              {children}
+            </RootProvider>
+          </AuthProvider>
         </ThemeProvider>        
       </body>
     </html>

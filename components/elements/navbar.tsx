@@ -1,25 +1,107 @@
-import logo from "@/public/logo.svg"
-import Themetoggle from "./themetoggle"
-import { useTheme } from "next-themes"
+"use client"
+import { Button } from "../ui/button";
+import Themetoggle from "./themetoggle";
+import Image from "next/image"
+import Icon from "@/public/logo-dark.svg"
+import darkIcon from "@/public/logo.svg"
+import { useTheme } from "next-themes";
+import { CornerBrackets } from "../ui/corner-brackets";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
-/**
- * Render a horizontal navigation bar with a theme-aware logo, navigation links, and a placeholder element.
- *
- * The SVG logo's fill is black when the theme is "light" and white for any other theme.
- *
- * @returns The navigation bar JSX element containing the logo, a three-item link menu (Docs, Source, Armory), and an empty placeholder div.
- */
-export default function Navbar(){
-  const { theme } = useTheme()
-  return(
-    <div className=" w-full h-16 flex justify-between items-center">
-      <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1789 364" width="100" height="64"><path fillRule="evenodd" d="m45.8 101.2c0-4.9-1.8-9.2-6.1-12.2-3.7-3.7-8-4.9-13.5-4.9h-25.7l1.2-83.3h144.5l125.5 195.9h0.6c-2.4-28.1-3.6-48.4-3-61.2l1.8-134.7h94.9l4.3 362.4h-95.5l-129.8-199.5h-0.6l2.4 199.5h-98.6zm424.9 1.3q1-7.4-5.5-12.9c-3.6-3.7-8.5-5.5-14-5.5h-25.8l1.3-83.3h146.3l1.2 361.3h-106.5zm207.5-1.3c-0.6-4.9-2.4-9.1-6.1-12.2-3.7-3.7-8.6-4.9-13.5-4.9h-26.3l1.9-83.3h143.8l125.5 195.9h1.3c-2.5-28.1-3.7-48.3-3.7-61.2l2.4-134.7h94.9l4.3 362.5h-95.5l-129.8-199.6h-1.2l2.4 199.6h-97.9zm563.9-100.4h101l3.7 295.7c-0.7 45.3-22.1 67.3-64.3 67.3h-124.9c-50.2 0-75.3-22-74.7-66.7l1.2-62.5h99.8l-1.2 46h60.6zm410.2 0l136.5 361.2h-104.7l-23.2-61.2h-131.1l-20.8 61.2h-114.5l131.7-361.2zm-62.5 112l-32.4 109h73.4z" fill={theme == "light"? "#000000": "#FFFFFF"}/></svg>
-      <ul className="px-4 py-2 bg-foreground/15 h-fit flex gap-4 rounded-full">
-        <a href="/docs"><li className="hover:bg-foreground/50 p-2 px-4 rounded-full font-bold cursor-pointer transition">Docs</li></a>
-        <a href="https://github.com/tunafysh/ninja"><li className="hover:bg-foreground/50 p-2 px-4 rounded-full font-bold cursor-pointer transition">Source</li></a>
-        <a href="/armory"><li className="hover:bg-foreground/50 p-2 px-4 rounded-full font-bold cursor-pointer transition">Armory</li></a>
-      </ul>
-      <div id="none" />
-    </div>
-  )
+export default function Navbar() {
+    const { resolvedTheme } = useTheme()
+    const [mounted, setMounted] = useState(false)
+    const [mobileOpen, setMobileOpen] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) return null // wait until client mounts
+    const icon = resolvedTheme === "dark" ? darkIcon : Icon
+    return(
+        <div className="fixed left-0 right-0 top-4 z-50 px-4">
+            <div className="corner-box mx-auto max-w-7xl border border-foreground/20 select-none backdrop-blur-2xl background-transparent">
+                <div className="relative">
+                    <CornerBrackets />
+                    <div className="flex w-full items-center justify-between gap-6 px-5 py-4">
+                        <Link href="/" className="flex items-center">
+                            <Image src={icon} alt="Logo" width={100} height={70} priority />
+                        </Link>
+                        <nav aria-label="Primary" className="hidden md:block">
+                            <ul className="flex gap-4">
+                                <li className="opacity-70 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <Link href="/armory">Armory</Link>
+                                </li>
+                                <li className="opacity-70 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <Link href="/docs">Docs</Link>
+                                </li>
+                                <li className="opacity-70 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <a href="https://github.com/tunafysh/ninja" target="_blank" rel="noreferrer">Source</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div className="flex items-center gap-3">
+                            <div className="hidden md:flex items-center gap-3">
+                                <Themetoggle />
+                                <Button asChild>
+                                    <Link href="/install">Download</Link>
+                                </Button>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="md:hidden"
+                                aria-label="Toggle menu"
+                                aria-expanded={mobileOpen}
+                                onClick={() => setMobileOpen((open) => !open)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="h-5 w-5"
+                                >
+                                    <line x1="3" y1="6" x2="21" y2="6" />
+                                    <line x1="3" y1="12" x2="21" y2="12" />
+                                    <line x1="3" y1="18" x2="21" y2="18" />
+                                </svg>
+                            </Button>
+                        </div>
+                    </div>
+                    <div
+                        className={`md:hidden overflow-hidden border-t border-foreground/50 px-5 transition-all duration-300 ease-out ${
+                            mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                        }`}
+                        aria-hidden={!mobileOpen}
+                    >
+                        <nav aria-label="Mobile">
+                            <ul className="flex flex-col gap-3 pt-4">
+                                <li className="opacity-80 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <Link href="/armory" onClick={() => setMobileOpen(false)}>Armory</Link>
+                                </li>
+                                <li className="opacity-80 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <Link href="/docs" onClick={() => setMobileOpen(false)}>Docs</Link>
+                                </li>
+                                <li className="opacity-80 font-semibold transition-opacity duration-200 hover:opacity-100">
+                                    <a href="https://github.com/tunafysh/ninja" target="_blank" rel="noreferrer">Source</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div className="mt-4 flex items-center gap-3 pb-5 pr-10">
+                            <Themetoggle />
+                            <Button className="w-full" asChild>
+                                <Link href="/install" onClick={() => setMobileOpen(false)}>Download</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
