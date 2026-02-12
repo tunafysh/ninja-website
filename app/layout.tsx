@@ -4,7 +4,6 @@ import { ThemeProvider } from "next-themes"
 import "./globals.css";
 import { RootProvider } from "fumadocs-ui/provider/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import AuthProvider from "@/components/auth-provider"
 import localFont from 'next/font/local'
 
 const LynoJean = localFont({ src: 'fonts/Lyno-Jean.otf', variable: '--font-jean' })
@@ -52,12 +51,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <RootProvider>
-              {children}
-            </RootProvider>
-          </AuthProvider>
-        </ThemeProvider>        
+          <RootProvider>{children}</RootProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
