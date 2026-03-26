@@ -1,0 +1,753 @@
+---
+title: Lua API Reference
+---
+
+Complete reference for Ninja's built-in Lua scripting API.
+
+## Overview
+
+Ninja scripts are written in Lua and have access to a set of built-in global modules. Scripts are executed via `shurikenctl run <file>` or referenced in a shuriken manifest (e.g., as a management or post-install script).
+
+All modules are available as globals — no `require()` is needed.
+
+```lua
+-- All modules are globally available
+fs.write("hello.txt", "Hello, World!")
+log.info("Done")
+```
+
+## `fs` — File System
+
+Read, write, and inspect files and directories. All paths are resolved relative to the script's working directory.
+
+### `fs.read(path)`
+
+Read a file's contents as a string.
+
+```lua
+local content = fs.read("config.toml")
+print(content)
+```
+
+**Parameters:** `path: string`  
+**Returns:** `string`
+
+---
+
+### `fs.write(path, content)`
+
+Write a string to a file, creating it if it does not exist and overwriting it if it does.
+
+```lua
+fs.write("output.txt", "Hello, World!")
+```
+
+**Parameters:** `path: string`, `content: string`  
+**Returns:** nothing
+
+---
+
+### `fs.append(path, content)`
+
+Append a string to a file, creating it if it does not exist.
+
+```lua
+fs.append("log.txt", "new line\n")
+```
+
+**Parameters:** `path: string`, `content: string`  
+**Returns:** nothing
+
+---
+
+### `fs.remove(path)`
+
+Delete a file.
+
+```lua
+fs.remove("temp.txt")
+```
+
+**Parameters:** `path: string`  
+**Returns:** nothing
+
+---
+
+### `fs.create_dir(path)`
+
+Create a directory and all missing parent directories (equivalent to `mkdir -p`).
+
+```lua
+fs.create_dir("logs/archive/2024")
+```
+
+**Parameters:** `path: string`  
+**Returns:** nothing
+
+---
+
+### `fs.read_dir(path)`
+
+Return a list of entry names inside a directory.
+
+```lua
+local entries = fs.read_dir(".")
+for _, name in ipairs(entries) do
+  print(name)
+end
+```
+
+**Parameters:** `path: string`  
+**Returns:** `string[]`
+
+---
+
+### `fs.exists(path)`
+
+Return `true` if the path exists (file or directory).
+
+```lua
+if fs.exists("config.toml") then
+  local cfg = fs.read("config.toml")
+end
+```
+
+**Parameters:** `path: string`  
+**Returns:** `boolean`
+
+---
+
+### `fs.is_dir(path)`
+
+Return `true` if the path exists and is a directory.
+
+```lua
+if fs.is_dir("data") then
+  print("data directory found")
+end
+```
+
+**Parameters:** `path: string`  
+**Returns:** `boolean`
+
+---
+
+### `fs.is_file(path)`
+
+Return `true` if the path exists and is a regular file.
+
+```lua
+if fs.is_file("server.conf") then
+  print("config file found")
+end
+```
+
+**Parameters:** `path: string`  
+**Returns:** `boolean`
+
+---
+
+## `env` — Environment
+
+Read and write environment variables, and query the current OS/architecture.
+
+### Properties
+
+| Property   | Type     | Description                                      |
+|------------|----------|--------------------------------------------------|
+| `env.os`   | `string` | Operating system name (e.g. `"linux"`, `"windows"`, `"macos"`) |
+| `env.arch` | `string` | CPU architecture (e.g. `"x86_64"`, `"aarch64"`) |
+
+```lua
+if env.os == "windows" then
+  print("Running on Windows")
+end
+```
+
+---
+
+### `env.get(key)`
+
+Return the value of an environment variable, or `nil` if it is not set.
+
+```lua
+local home = env.get("HOME")
+if home then
+  print("Home: " .. home)
+end
+```
+
+**Parameters:** `key: string`  
+**Returns:** `string | nil`
+
+---
+
+### `env.set(key, value)`
+
+Set an environment variable for the current process.
+
+```lua
+env.set("MY_APP_PORT", "9000")
+```
+
+**Parameters:** `key: string`, `value: string`  
+**Returns:** nothing
+
+---
+
+### `env.remove(key)`
+
+Unset an environment variable.
+
+```lua
+env.remove("DEBUG")
+```
+
+**Parameters:** `key: string`  
+**Returns:** nothing
+
+---
+
+### `env.vars()`
+
+Return all current environment variables as a key-value table.
+
+```lua
+local vars = env.vars()
+for k, v in pairs(vars) do
+  print(k .. " = " .. v)
+end
+```
+
+**Returns:** `table<string, string>`
+
+---
+
+### `env.cwd()`
+
+Return the absolute path of the script's working directory.
+
+```lua
+local dir = env.cwd()
+print("Working directory: " .. dir)
+```
+
+**Returns:** `string`
+
+---
+
+## `shell` — Shell Execution
+
+Run shell commands and capture their output.
+
+### `shell.exec(command, admin?)`
+
+Execute a shell command synchronously and return its exit code and captured output.
+
+On Unix, the command is run through `$SHELL -c`. On Windows, it runs through `powershell.exe`.
+
+```lua
+local result = shell.exec("echo hello")
+print(result.stdout)   -- "hello\n"
+print(result.code)     -- 0
+
+-- Run with elevated privileges (uses pkexec on Unix)
+local result = shell.exec("apt-get install nginx", true)
+```
+
+**Parameters:** `command: string`, `admin?: boolean` (default `false`)  
+**Returns:** `{ code: number, stdout: string, stderr: string }`
+
+---
+
+## `proc` — Process Management
+
+Spawn and terminate background processes.
+
+### `proc.spawn(command)`
+
+Launch a command as a background (non-blocking) process. On Unix, this forks and uses `execvp`/`execve`. On Windows, it uses `CreateProcessW`.
+
+Relative paths (starting with `./`, `../`, etc.) are resolved against the script's working directory.
+
+```lua
+local p = proc.spawn("nginx -c /etc/nginx/nginx.conf")
+print("Started with PID: " .. p.pid)
+```
+
+**Parameters:** `command: string`  
+**Returns:** `{ pid: number }`
+
+---
+
+### `proc.kill_pid(pid)`
+
+Send a termination signal to a process by its PID.
+
+```lua
+local killed = proc.kill_pid(1234)
+if killed then
+  print("Process terminated")
+end
+```
+
+**Parameters:** `pid: number`  
+**Returns:** `boolean` — `true` on success
+
+---
+
+### `proc.kill_name(name)`
+
+Terminate all processes matching the given name.
+
+```lua
+proc.kill_name("my-server")
+```
+
+**Parameters:** `name: string`  
+**Returns:** `boolean` — `true` on success
+
+---
+
+## `time` — Date and Time
+
+Query the current UTC time and sleep.
+
+### `time.year()`
+
+Return the current year.
+
+```lua
+print(time.year())  -- e.g. 2025
+```
+
+**Returns:** `number`
+
+---
+
+### `time.month()`
+
+Return the current month (1–12).
+
+```lua
+print(time.month())  -- e.g. 3
+```
+
+**Returns:** `number`
+
+---
+
+### `time.day()`
+
+Return the current day of the month (1–31).
+
+```lua
+print(time.day())  -- e.g. 26
+```
+
+**Returns:** `number`
+
+---
+
+### `time.hour(format)`
+
+Return the current hour. When `format` is `true`, returns the 12-hour clock value and an `"AM"`/`"PM"` suffix.
+
+```lua
+-- 24-hour
+local h, _ = time.hour(false)
+print(h)  -- e.g. 14
+
+-- 12-hour
+local h, ampm = time.hour(true)
+print(h .. " " .. ampm)  -- e.g. "2 PM"
+```
+
+**Parameters:** `format: boolean`  
+**Returns:** `(number, string)` — hour and `"AM"` / `"PM"` / `""` when not formatting
+
+---
+
+### `time.minute()`
+
+Return the current minute (0–59).
+
+```lua
+print(time.minute())
+```
+
+**Returns:** `number`
+
+---
+
+### `time.second()`
+
+Return the current second (0–59).
+
+```lua
+print(time.second())
+```
+
+**Returns:** `number`
+
+---
+
+### `time.now(format)`
+
+Return the current UTC datetime as a formatted string. Uses [chrono format specifiers](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
+
+```lua
+local ts = time.now("%Y-%m-%d %H:%M:%S")
+print(ts)  -- e.g. "2025-03-26 09:11:13"
+```
+
+**Parameters:** `format: string`  
+**Returns:** `string`
+
+---
+
+### `time.sleep(seconds)`
+
+Block the current thread for the given number of seconds.
+
+```lua
+time.sleep(2.5)  -- sleep for 2.5 seconds
+```
+
+**Parameters:** `seconds: number`  
+**Returns:** nothing
+
+---
+
+## `json` — JSON
+
+Encode and decode JSON data.
+
+### `json.encode(table)`
+
+Serialize a Lua table to a JSON string.
+
+```lua
+local data = { name = "nginx", port = 8080, active = true }
+local s = json.encode(data)
+print(s)  -- {"active":true,"name":"nginx","port":8080}
+```
+
+**Parameters:** `table: table`  
+**Returns:** `string`
+
+---
+
+### `json.decode(json_string)`
+
+Parse a JSON string and return it as a Lua table. The top-level value must be a JSON object or array.
+
+```lua
+local obj = json.decode('{"status":"ok","code":200}')
+print(obj.status)  -- "ok"
+```
+
+**Parameters:** `json_string: string`  
+**Returns:** `table`
+
+---
+
+## `log` — Logging
+
+Write structured log messages at different severity levels. Output is routed through the Ninja logging framework (controlled by `NINJA_LOG_LEVEL`).
+
+### `log.info(message)`
+
+Log an informational message.
+
+```lua
+log.info("Service configured successfully")
+```
+
+**Parameters:** `message: string`  
+**Returns:** nothing
+
+---
+
+### `log.warn(message)`
+
+Log a warning message.
+
+```lua
+log.warn("Config file not found, using defaults")
+```
+
+**Parameters:** `message: string`  
+**Returns:** nothing
+
+---
+
+### `log.error(message)`
+
+Log an error message.
+
+```lua
+log.error("Failed to connect to database")
+```
+
+**Parameters:** `message: string`  
+**Returns:** nothing
+
+---
+
+### `log.debug(message)`
+
+Log a debug message (only visible when `NINJA_LOG_LEVEL=debug`).
+
+```lua
+log.debug("Entering setup phase")
+```
+
+**Parameters:** `message: string`  
+**Returns:** nothing
+
+---
+
+## `http` — HTTP Client
+
+Make HTTP requests and download files.
+
+### `http.fetch(url, headers?, method?, body?)`
+
+Perform an HTTP request and return the status code and response body.
+
+```lua
+-- Simple GET
+local res = http.fetch("https://api.example.com/status")
+print(res.status)  -- e.g. 200
+print(res.body)
+
+-- POST with JSON body
+local res = http.fetch(
+  "https://api.example.com/data",
+  { ["Content-Type"] = "application/json", ["Authorization"] = "Bearer token123" },
+  "POST",
+  json.encode({ key = "value" })
+)
+```
+
+**Parameters:**
+- `url: string`
+- `headers?: table<string, string>` — request headers (optional)
+- `method?: string` — HTTP method, defaults to `"GET"`
+- `body?: string` — request body (optional)
+
+**Returns:** `{ status: number, body: string }`
+
+---
+
+### `http.download(url, dest)`
+
+Download the content at `url` and write it to `dest`. Parent directories are created automatically. The destination path is resolved relative to the script's working directory.
+
+```lua
+http.download(
+  "https://example.com/releases/app-linux.tar.gz",
+  "downloads/app-linux.tar.gz"
+)
+```
+
+**Parameters:** `url: string`, `dest: string`  
+**Returns:** nothing
+
+---
+
+## `ninja` — Service Management
+
+Control Ninja-managed shurikens from within a script. The `ninja` module is only available when running a script with `shurikenctl run` — it is **not** available in management scripts (`manage.ns`) that run inside a shuriken's own context.
+
+All functions in this module are **async** (they perform I/O) and are automatically awaited by the Lua runtime.
+
+### `ninja.start(name)`
+
+Start a shuriken.
+
+```lua
+ninja.start("webserver")
+```
+
+**Parameters:** `name: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.stop(name)`
+
+Stop a running shuriken.
+
+```lua
+ninja.stop("webserver")
+```
+
+**Parameters:** `name: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.refresh()`
+
+Reload the shuriken registry from disk.
+
+```lua
+ninja.refresh()
+```
+
+**Returns:** nothing
+
+---
+
+### `ninja.list(with_state)`
+
+Return a list of installed shurikens. When `with_state` is `true`, each entry is a table with `name` and `state` fields; otherwise each entry is just a name string.
+
+```lua
+-- Names only
+local names = ninja.list(false)
+for _, name in ipairs(names) do
+  print(name)
+end
+
+-- With state
+local services = ninja.list(true)
+for _, s in ipairs(services) do
+  print(s.name .. ": " .. s.state)
+end
+```
+
+**Parameters:** `with_state: boolean`  
+**Returns:**
+- `with_state = false`: `string[]`
+- `with_state = true`: `{ name: string, state: string }[]`
+
+---
+
+### `ninja.configure(name)`
+
+Generate a configuration file for a shuriken from its template and stored options.
+
+```lua
+ninja.configure("database")
+```
+
+**Parameters:** `name: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.install(path)`
+
+Install a `.shuriken` package file.
+
+```lua
+ninja.install("/home/user/downloads/com.example.app.shuriken")
+```
+
+**Parameters:** `path: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.remove(name)`
+
+Uninstall a shuriken.
+
+```lua
+ninja.remove("old-service")
+```
+
+**Parameters:** `name: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.lockpick(name)`
+
+Remove a stale lock file for a shuriken. Only use this after verifying that the shuriken's process is no longer running.
+
+```lua
+ninja.lockpick("crashed-service")
+```
+
+**Parameters:** `name: string`  
+**Returns:** nothing
+
+---
+
+### `ninja.get_projects()`
+
+Return the list of project paths known to the Ninja manager.
+
+```lua
+local projects = ninja.get_projects()
+for _, p in ipairs(projects) do
+  print(p)
+end
+```
+
+**Returns:** `string[]`
+
+---
+
+## Examples
+
+### System setup script
+
+```lua
+-- setup.lua
+log.info("Starting setup on " .. env.os)
+
+if env.os == "linux" then
+  local result = shell.exec("apt-get install -y nginx")
+  if result.code ~= 0 then
+    log.error("apt-get failed: " .. result.stderr)
+    return
+  end
+end
+
+fs.write("/etc/app/config.toml", fs.read("config.tmpl"))
+log.info("Setup complete")
+```
+
+### Deploy and start a service
+
+```lua
+-- deploy.lua
+ninja.install("./releases/com.example.myapp-linux-x86_64.shuriken")
+ninja.configure("myapp")
+ninja.start("myapp")
+
+local services = ninja.list(true)
+for _, s in ipairs(services) do
+  log.info(s.name .. " -> " .. s.state)
+end
+```
+
+### Download and process a remote config
+
+```lua
+-- fetch-config.lua
+local res = http.fetch("https://config.example.com/settings.json")
+if res.status ~= 200 then
+  log.error("Failed to fetch config: " .. res.status)
+  return
+end
+
+local cfg = json.decode(res.body)
+log.info("Fetched config version: " .. cfg.version)
+
+fs.write("settings.json", res.body)
+```
+
+### Timestamped log entry
+
+```lua
+local ts = time.now("%Y-%m-%d %H:%M:%S")
+fs.append("deploy.log", "[" .. ts .. "] Deployment started\n")
+```
+
+See also: [DSL Syntax](dsl-syntax), [CLI Reference](cli), [Shuriken Schema](shuriken-schema)

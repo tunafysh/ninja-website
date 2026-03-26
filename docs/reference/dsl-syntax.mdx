@@ -57,28 +57,20 @@ exit
 
 #### start
 
-Start a shuriken.
+Start the selected shuriken.
 
 ```bash
-# With selection
 select myapp
 start
-
-# Direct
-start myapp
 ```
 
 #### stop
 
-Stop a shuriken.
+Stop the selected shuriken.
 
 ```bash
-# With selection
 select myapp
 stop
-
-# Direct
-stop myapp
 ```
 
 #### install
@@ -91,17 +83,6 @@ install <path>
 # Example
 install ./service.shuriken
 install ~/Downloads/com.example.app.shuriken
-```
-
-#### remove
-
-Remove an installed shuriken.
-
-```bash
-remove <name>
-
-# Example
-remove myapp
 ```
 
 ### Configuration
@@ -176,18 +157,6 @@ execute <path>
 # Examples
 execute ./setup.ns
 execute scripts/deploy.lua
-```
-
-#### run-tool
-
-Run a shuriken-defined tool.
-
-```bash
-run-tool <tool-name>
-
-# Example
-run-tool migrate
-run-tool backup
 ```
 
 ### HTTP Server
@@ -369,14 +338,17 @@ DSL commands return success/error status:
 
 ```bash
 # Success
-start myapp
+select myapp
+start
 # → "Service started successfully"
 
-# Error
-start nonexistent
-# → Error: Service not found
+# Error: no such shuriken
+select nonexistent
+# → "No such shuriken: nonexistent"
 
-start myapp
+# Error: already running
+select myapp
+start
 # → Error: Service already running
 ```
 
@@ -422,15 +394,19 @@ select webserver
 set port 9000
 set workers 8
 configure
-restart
+stop
+start
 ```
 
 ### Multi-Service Management
 
 ```bash
-start web1
-start web2
-start database
+select web1
+start
+select web2
+start
+select database
+start
 list state
 ```
 
@@ -456,8 +432,9 @@ list state
 ### With CLI
 
 ```bash
-# Direct command
-shurikenctl "start myapp"
+# Direct command sequence
+shurikenctl run -c "select myapp"
+shurikenctl run -c "start"
 
 # Script file
 shurikenctl run script.dsl
@@ -467,7 +444,7 @@ shurikenctl run script.dsl
 
 The GUI executes DSL commands internally:
 
-- Start button → `start <name>`
+- Start button → `select <name>` then `start`
 - Configure dialog → `configure { ... }`
 - Install button → `install <path>`
 
@@ -476,7 +453,7 @@ The GUI executes DSL commands internally:
 ```bash
 curl -X POST http://localhost:8080/api/dsl/execute \
   -H "Content-Type: application/json" \
-  -d '{"command": "start myapp"}'
+  -d '{"command": "select myapp\nstart"}'
 ```
 
-See also: [CLI Reference](cli), [Developer DSL Guide](../developer-guide/dsl)
+See also: [CLI Reference](cli), [Lua API Reference](lua-api), [Developer DSL Guide](../developer-guide/dsl)
