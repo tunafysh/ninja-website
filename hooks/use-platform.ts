@@ -9,9 +9,12 @@ function detectPlatformFromNavigator(): InstallPlatform {
     return "unknown"
   }
 
-  const userAgent = window.navigator.userAgent.toLowerCase()
-  const platform = window.navigator.platform?.toLowerCase() || ""
-  const userAgentPlatform = window.navigator.userAgentData?.platform?.toLowerCase() || ""
+  type NavigatorWithUAData = Navigator & { userAgentData?: { platform?: string } }
+  const { navigator } = window
+  const userAgent = navigator.userAgent.toLowerCase()
+  const platform = navigator.platform?.toLowerCase() || ""
+  const userAgentPlatform =
+    (navigator as NavigatorWithUAData).userAgentData?.platform?.toLowerCase() || ""
 
   if (userAgent.includes("win") || platform.includes("win") || userAgentPlatform.includes("win")) {
     return "windows"

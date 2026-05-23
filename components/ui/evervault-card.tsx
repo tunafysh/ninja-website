@@ -1,5 +1,5 @@
 "use client";
-import { useMotionValue } from "motion/react";
+import { useMotionValue, type MotionValue } from "motion/react";
 import React, { useState, useEffect } from "react";
 import { useMotionTemplate, motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -66,8 +66,8 @@ export const EvervaultCard = ({
 };
 
 interface CardPatternProps {
-  mouseX: ReturnType<typeof useMotionValue>;
-  mouseY: ReturnType<typeof useMotionValue>;
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
   randomString: string;
 }
 
