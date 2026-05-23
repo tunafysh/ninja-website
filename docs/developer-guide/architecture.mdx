@@ -119,9 +119,17 @@ See [Templater](templater) for details.
 ## APIs and Interfaces
 
 - **CLI** - `shurikenctl` command-line tool
-- **GUI** - Tauri desktop application
-- **HTTP API** - REST endpoints for service management
+- **GUI** - Next.js + Tauri desktop application
+- **HTTP / GraphQL API** - Automation and CI/CD integration
 - **DSL** - Interactive command language
 - **MCP** - Tool integration for automation
+
+## Architecture Highlights
+
+- **Modular design** - CLI, GUI, HTTP, and FFI pieces can be used independently
+- **Rust core** - Memory-safe and fast service management engine
+- **Lua scripting** - Shurikens can embed custom logic and modules
+- **Cross-platform** - Linux, macOS, and Windows support with platform-specific behavior
+- **Extensible** - Shurikens, tools, and scripting hooks adapt to different infrastructure
 
 See also: [API Reference](../reference/api-reference), [DSL Syntax](dsl)

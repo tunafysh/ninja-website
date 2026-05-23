@@ -1,0 +1,85 @@
+{
+  "windows": {
+    "label": "Windows",
+    "summary": "Windows users can grab .exe or .msi packages, or use PowerShell for a quick command-line install.",
+    "packages": [
+      {
+        "label": "Windows installers",
+        "formats": [
+          {
+            "label": ".exe",
+            "href": "/download?os=windows&format=exe"
+          },
+          {
+            "label": ".msi",
+            "href": "/download?os=windows&format=msi"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "label": "PowerShell",
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"iwr https://ninja.sh/download?os=windows -UseBasicParsing | iex\""
+      }
+    ]
+  },
+  "linux": {
+    "label": "Linux",
+    "summary": "Linux users can choose distro packages or use the shell installer string.",
+    "packages": [
+      {
+        "label": "Distribution packages",
+        "formats": [
+          {
+            "label": "AppImage",
+            "href": "/download?os=linux&format=appimage"
+          },
+          {
+            "label": ".deb",
+            "href": "/download?os=linux&format=deb"
+          },
+          {
+            "label": ".rpm",
+            "href": "/download?os=linux&format=rpm"
+          },
+          {
+            "label": "AUR",
+            "href": "/download?os=linux&format=aur"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "label": "Shell",
+        "command": "curl -fsSL https://ninja.sh/download?os=linux | sh"
+      }
+    ]
+  },
+  "macos": {
+    "label": "macOS",
+    "summary": "macOS users can download a .dmg or app bundle, or use a shell command for setup.",
+    "packages": [
+      {
+        "label": "macOS downloads",
+        "formats": [
+          {
+            "label": ".dmg",
+            "href": "/download?os=macos&format=dmg"
+          },
+          {
+            "label": "App bundle",
+            "href": "/download?os=macos&format=app-bundle"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "label": "Shell",
+        "command": "curl -fsSL https://ninja.sh/download?os=macos | sh"
+      }
+    ]
+  }
+}

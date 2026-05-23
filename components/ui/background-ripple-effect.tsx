@@ -2,21 +2,25 @@
 import React, { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
+interface ClickedCell {
+  row: number;
+  col: number;
+}
+
+interface BackgroundRippleEffectProps {
+  rows?: number;
+  cols?: number;
+  cellSize?: number;
+}
+
 export const BackgroundRippleEffect = ({
   rows = 8,
   cols = 27,
   cellSize = 56,
-}: {
-  rows?: number;
-  cols?: number;
-  cellSize?: number;
-}) => {
-  const [clickedCell, setClickedCell] = useState<{
-    row: number;
-    col: number;
-  } | null>(null);
+}: BackgroundRippleEffectProps) => {
+  const [clickedCell, setClickedCell] = useState<ClickedCell | null>(null);
   const [rippleKey, setRippleKey] = useState(0);
-  const ref = useRef<any>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   return (
     <div

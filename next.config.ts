@@ -6,9 +6,9 @@ const withMDX = createMDX({
 })
 
 const nextConfig: NextConfig = {
-  /* config options here */  
+  /* config options here */
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  reactCompiler: true
+  reactCompiler: true,
 };
 
 export default withMDX(nextConfig);

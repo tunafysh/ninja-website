@@ -71,6 +71,48 @@
       opacity: 0.18;
     }
   }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-glow-pulse: glow-pulse 2s infinite;
 }
 
 :root {
@@ -147,7 +189,17 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top left, color-mix(in oklch, var(--foreground) 4%, transparent), transparent 28%),
+      radial-gradient(circle at top right, color-mix(in oklch, var(--foreground) 3%, transparent), transparent 24%),
+      linear-gradient(to bottom, transparent 0, transparent 96%, color-mix(in oklch, var(--foreground) 4%, transparent) 100%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--foreground) 12%, transparent);
+    color: var(--foreground);
   }
 }
 
@@ -164,7 +216,6 @@
   width: 100%;
   height: 100%;
 }
-
 
 .font-jean {
   font-family: var(--font-jean);
