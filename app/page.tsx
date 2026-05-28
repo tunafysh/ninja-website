@@ -1,5 +1,11 @@
 import DevHome from "@/components/home";
+import Navbar from "@/components/elements/navbar"
 
 export default function Home() {
-  return <DevHome />
+  return (
+    <>
+      <Navbar />
+      <DevHome />
+    </>
+  )
 }

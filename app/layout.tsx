@@ -5,7 +5,6 @@ import "./globals.css";
 import { RootProvider } from "fumadocs-ui/provider/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import localFont from 'next/font/local'
-import Navbar from "@/components/elements/navbar"
 
 const LynoJean = localFont({ src: 'fonts/Lyno-Jean.otf', variable: '--font-jean' })
 const LynoStan = localFont({ src: 'fonts/Lyno-Stan.otf', variable: '--font-stan' })
@@ -53,7 +52,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <RootProvider>
-            <Navbar />
             {children}
           </RootProvider>
         </ThemeProvider>
